@@ -8,6 +8,7 @@ struct ListNode {
 };
 class Solution {
     public:
+        // can also use two lists like in 121.cpp
         ListNode* partition(ListNode* head, int x) {
             if (!head || !head->next) {
                 return head;
