@@ -14,12 +14,15 @@ wd = pickle.load(f)
 #print len(wd)
 
 arr_dict = dict()
+index = -1
 for (k, v) in wd.items(): 
     uk = k.encode("utf-8")
     if uk == "计算机": 
         index = v
     arr_dict[v] = uk
 
+if index == -1: 
+    sys.exit(0)
 print index
 emb = np.load("emb.npy")
 emb_guowang = emb[index]
