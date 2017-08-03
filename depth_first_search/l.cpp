@@ -11,36 +11,64 @@ struct TreeNode {
 class Solution {
 public:
     int rob(TreeNode* root) {
-        return max(r_odd(root, 1), r_even(root, 1));
+        int o = r_odd(root, 0);
+        int e = r_odd(root, 1);
+        // cout << "o :" << o << " e: " << e << endl;
+        return max(o, e);
     }
 
-    int r_odd(TreeNode * root, int level) {
+    int r_odd(TreeNode * root, int is_rub) {
         if (!root) {
             return 0;
         }
         int s = 0;
-        if (level % 2 == 1) {
+        if (is_rub) {
             s += root->val;
+            s += r_odd(root->left, 0);
+            s += r_odd(root->right, 0);
+        } else {
+            s = 0;
+            int a = r_odd(root->left, 0);
+            int b = r_odd(root->left, 1);
+            int c = r_odd(root->right, 0);
+            int d = r_odd(root->right, 1);
+
+            s += b;
+            s += d;
+
+            int s2  = 0;
+            s2 += a;
+            s2 += c;
+
+            if (s2>s) s = s2;
+
+            int s3 = 0;
+            s3 += a;
+            s3 += d;
+            if (s3 > s) s = s3;
+
+            int s4 = 0;
+            s4 += b;
+            s4 += c;
+            if (s4 > s) s = s4;
         }
-        level ++;
-        return  s + r_odd(root->left, level) + r_odd(root->right, level);
+
+
+        return s;
+
     }
 
-    int r_even(TreeNode * root, int level) {
-        if (!root) {
-            return 0;
-        }
-        int s = 0;
-        if (level % 2 == 0) {
-            s += root->val;
-        }
-        level ++;
-        return s + r_even(root->left, level) + r_even(root->right, level);
-    }
 };
 
 int main() {
     Solution o;
+    {
+        TreeNode * root = new TreeNode(4);
+        root->left = new TreeNode(1);
+        root->left->left = new TreeNode(2);
+        root->left->left->left = new TreeNode(3);
+        cout << o.rob(root) << endl;
+    }
 
     {
         TreeNode * root = new TreeNode(3);
