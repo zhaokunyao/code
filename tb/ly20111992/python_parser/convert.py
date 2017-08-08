@@ -30,11 +30,14 @@ class Converter(object):
             "img_dir": "./FigureRepositroy",
             # 模板文件
             "tpl_file": "./tpl.html",
+            # title
+            "title": "报告的title",
             # 模板变量
             "tpl_params": {
                 "csv_header": "####CSV_HEADER####",
                 "csv_body": "####CSV_BODY####",
-                "img_dir": "####IMG_DIR####"
+                "img_dir": "####IMG_DIR####",
+                "title" : "####TITLE####"
             },
             # 输出文件
             "output_file": "result.html"
@@ -48,6 +51,7 @@ class Converter(object):
 
         # 图片列表
         self.arrImg = {}
+
 
     def run(self): 
         """入口函数
@@ -71,7 +75,8 @@ class Converter(object):
         # 替换
         strHtml = strHtml.replace(self.arrConf['tpl_params']['csv_header'], strCsvHeader)
         strHtml = strHtml.replace(self.arrConf['tpl_params']['csv_body'], strCsvBody)
-        strHtml = strHtml.replace(self.arrConf['tpl_params']['img_dir'], self.arrConf['img_dir'] + "/");
+        strHtml = strHtml.replace(self.arrConf['tpl_params']['img_dir'], self.arrConf['img_dir'] + "/")
+        strHtml = strHtml.replace(self.arrConf['tpl_params']['title'], self.arrConf['title'])
 
         # 输出
         with open(self.arrConf['output_file'], "w") as f: 

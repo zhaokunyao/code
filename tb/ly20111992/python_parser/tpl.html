@@ -17,6 +17,15 @@ var csv_header = '####CSV_HEADER####';
 var csv_body='####CSV_BODY####';
 </script>
 <style>
+.filter_button {
+    width: 100px;
+    font-size: large;
+}
+.title {
+    font-size: 32px;
+    text-align: center;
+    padding-top: 20px;
+}
 table {
   border-collapse:collapse;
 }
@@ -25,6 +34,9 @@ table {
     margin : 50px;
     border: 1px solid silver;
     /** width: 1000px; **/
+}
+.csv_table table {
+    width: 100%;
 }
 .csv_table .csv_item {
     padding: 5px;
@@ -39,30 +51,34 @@ table {
 }
 .div_filter {
     margin: 20px;
+    margin-left:50px;
 }
 </style>
 </head>
 <body>
+<div class='title'>
+####TITLE####
+</div>
 <div class='div_filter'>
 <form id='f1'>
 <table>
 <tr>
 <td>
-item匹配 
+item匹配&nbsp;&nbsp;
 </td>
 <td>
-<input type='text' name='filter_item' id='filter_item' value= '' />
+<input type='text' name='filter_item' id='filter_item' value= '' onkeypress='if(event.keyCode==13) {render();}' />
 </td>
 <td>
 &nbsp;&nbsp;&nbsp;&nbsp;rate
 </td>
 <td>
-大于
-<input type='text' name='filter_rate' id='filter_rate' value='' />
+大于&nbsp;&nbsp;
+<input type='text' name='filter_rate' id='filter_rate' value='' onkeypress='if(event.keyCode==13) {render();}'/>
 </td>
 <td>
-<input value='过滤' type='button' onClick='render();return false;' />
-<input value='重置' type='button' onClick='reset();render();return false;' />
+<input value='过滤' type='button' onClick='render();return false;' class='filter_button' />
+<input value='重置' type='button' onClick='reset();render();return false;' class='filter_button' />
 </td>
 </tr>
 </table>
