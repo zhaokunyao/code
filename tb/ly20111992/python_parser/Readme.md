@@ -31,6 +31,7 @@ python ./convert.py
 # 配置修改
 很抱歉并没有搞出来一个配置文件;
 convert.py中有一些配置：
+```
 self.arrConf = {
     # 数据文件名
     "csv_file": "./exampleData.csv",
@@ -47,11 +48,13 @@ self.arrConf = {
     # 输出文件
     "output_file": "result.html"
 }
+```
 
 tpl.html中：
+```
 // 图片默认高度
 var img_height = "200px";
 // 图片默认宽度
 var img_width = "200px";
-
+```
 
