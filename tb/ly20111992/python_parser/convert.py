@@ -24,16 +24,20 @@ class Converter(object):
         """
         # 配置
         self.arrConf = {
+            # 数据文件
             "csv_file": "./exampleData.csv",
+            # 图片目录
             "img_dir": "./FigureRepositroy",
+            # 模板文件
             "tpl_file": "./tpl.html",
+            # 模板变量
             "tpl_params": {
                 "csv_header": "####CSV_HEADER####",
                 "csv_body": "####CSV_BODY####",
                 "img_dir": "####IMG_DIR####"
             },
+            # 输出文件
             "output_file": "result.html"
-
         }
         
         # csv文件头

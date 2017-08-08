@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<script src="./js/jquery-3.2.1.min.js"></script>
+<script>
+// 图片高度
+var img_height = "200px";
+// 图片宽度
+var img_width = "200px";
+// 图片目录
+var img_dir = "####IMG_DIR####";
+// 头
+var csv_header = '####CSV_HEADER####';
+// body 及图片
+var csv_body='####CSV_BODY####';
+</script>
+<style>
+table {
+  border-collapse:collapse;
+}
+.container {
+    padding : 10px;
+    margin : 50px;
+    border: 1px solid silver;
+    /** width: 1000px; **/
+}
+.csv_table .csv_item {
+    padding: 5px;
+    border: 1px solid silver;
+}
+.img_table {
+    overflow: hidden;
+    clear: both;
+}
+.img_table .img_item {
+    float:left;
+}
+.div_filter {
+    margin: 20px;
+}
+</style>
+</head>
+<body>
+<div class='div_filter'>
+<form id='f1'>
+<table>
+<tr>
+<td>
+item匹配 
+</td>
+<td>
+<input type='text' name='filter_item' id='filter_item' value= '' />
+</td>
+<td>
+&nbsp;&nbsp;&nbsp;&nbsp;rate
+</td>
+<td>
+大于
+<input type='text' name='filter_rate' id='filter_rate' value='' />
+</td>
+<td>
+<input value='过滤' type='button' onClick='render();return false;' />
+<input value='重置' type='button' onClick='reset();render();return false;' />
+</td>
+</tr>
+</table>
+</form>
+</div>
+<div class='wrapper'>
+</div>
+</body>
+<script>
+function render() {
+        console.log('render');
+        $('div.wrapper').html("");
+        // filter
+        var filter_item = $('#filter_item').val().toLowerCase();
+        var filter_rate = $('#filter_rate').val().toLowerCase();
+        console.log("filter_item:" + filter_item);
+        console.log("filter_rate:" + filter_rate);
+        // counter
+        var counter_display_csv = 0;
+        for (var b in arr_csv_body) {
+            var div_container = $('<div></div>').addClass('container');
+            var div_csv_table = $('<div><table><tbody><tr></tr><tr></tr></tbody></table></div>').addClass('csv_table');
+            var div_img_table = $('<div></div>').addClass('img_table');
+            var arr_body = arr_csv_body[b];
+            if (filter_item != "") {
+                // 匹配从最左开始
+                // 匹配不到则不展示(continue)
+                if (0 != arr_body[1].toLowerCase().indexOf(filter_item)) {
+                    continue;
+                }
+            }
+            if (filter_rate != "") {
+                // 需要转成float
+                var f1 = parseFloat(filter_rate);
+                var f2 = parseFloat(arr_body[9]);
+                console.log("f1: " + f1);
+                console.log("f2: " + f2);
+                // f1不是数字的话，则全不展示
+                // isNaN means is not a number
+                if (isNaN(f1)) {
+                    console.log('f1:' + f1 + ' not a number');
+                    continue;
+                }
+                // 数据无法被转成float，则不展示(continue)
+                if (isNaN(f2)) {
+                    console.log('f2:' + f2 + ' not a number');
+                    continue;
+                }
+                // 数据较小则不展示(continue)
+                if (f1 >= f2) {
+                    console.log('f1:' + f1 + ' bigger than f2:' + f2);
+                    continue;
+                }
+            }
+
+            // csv
+            for (var h in arr_csv_header) {
+                if (h == 0) continue;
+                var v = arr_csv_header[h];
+
+                // header item
+                var div_h_item = $('<th></th>').addClass('csv_item').text(v);
+                $('tr:first', div_csv_table).append(div_h_item);
+
+                // body item
+                var div_b_item = $('<td></td>').addClass('csv_item').text(arr_body[h]);
+                $('tr:nth-child(2)', div_csv_table).append(div_b_item);
+            }
+            counter_display_csv++;
+            div_container.append(div_csv_table);
+
+            // img
+            var arr_img = arr_body[arr_body.length - 1];
+
+            for (var i in arr_img) {
+                var v = arr_img[i];
+                var div_img_item = $('<div><img width='+img_width+' height='+img_height+' /></div>').addClass('img_item');
+                // 设置src
+                $('img', div_img_item).attr("src", img_dir + v);
+                // 添加事件
+                div_img_item.delegate('img', 'mouseover', function() {
+                    this.style.width = "100%";
+                    this.style.height = "100%";
+                });
+                div_img_item.delegate('img', 'mouseout', function() {
+                    this.style.width = img_width;
+                    this.style.height = img_height;
+                });
+                div_img_table.append(div_img_item);
+
+            }
+            div_container.append(div_img_table);
+            $('div.wrapper').append(div_container);
+        }
+
+        console.log("counter_display_csv: " + counter_display_csv);
+}
+
+
+// json->array
+var arr_csv_header  = JSON.parse(csv_header);
+var arr_csv_body    = JSON.parse(csv_body);
+render();
+</script>
+</html>
