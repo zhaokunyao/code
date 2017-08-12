@@ -6,9 +6,9 @@
 <script src="./js/jquery-3.2.1.min.js"></script>
 <script>
 // 图片高度
-var img_height = "200px";
+var img_height = "80px";
 // 图片宽度
-var img_width = "200px";
+var img_width = "80px";
 // 图片目录
 var img_dir = "####IMG_DIR####";
 // 头
@@ -19,7 +19,7 @@ var csv_body='####CSV_BODY####';
 <style>
 .filter_button {
     width: 100px;
-    font-size: large;
+    /** font-size: larger; **/
 }
 .title {
     font-size: 32px;
@@ -31,8 +31,8 @@ table {
 }
 .container {
     padding : 10px;
-    margin : 50px;
-    border: 1px solid silver;
+    margin : 50px 0 50px 0;
+    /**border: 1px solid silver;**/
     /** width: 1000px; **/
 }
 .csv_table table {
@@ -53,6 +53,10 @@ table {
     margin: 20px;
     margin-left:50px;
 }
+
+#previewDiv{z-index: 9999;position:absolute;display:none;background:#fff;border-top:5px solid #999;border-bottom:7px solid #999;border-left:5px solid #999;border-right:7px solid #999;}
+.mask {color:#C7EDCC;background-color:#999;position:absolute;top:0px;left:0px;width:200%;height:3000px;opacity: 0.6;filter: "alpha(opacity=60)";filter: alpha(Opacity=60);}
+                
 </style>
 </head>
 <body>
@@ -64,27 +68,38 @@ table {
 <table>
 <tr>
 <td>
-item匹配&nbsp;&nbsp;
+Tid Filter&nbsp;&nbsp;
 </td>
 <td>
 <input type='text' name='filter_item' id='filter_item' value= '' onkeypress='if(event.keyCode==13) {render();}' />
 </td>
 <td>
-&nbsp;&nbsp;&nbsp;&nbsp;rate
+&nbsp;&nbsp;&nbsp;&nbsp;Fail Rate over&bnsp;&nbsp;
 </td>
 <td>
-大于&nbsp;&nbsp;
 <input type='text' name='filter_rate' id='filter_rate' value='' onkeypress='if(event.keyCode==13) {render();}'/>
 </td>
 <td>
-<input value='过滤' type='button' onClick='render();return false;' class='filter_button' />
-<input value='重置' type='button' onClick='reset();render();return false;' class='filter_button' />
+<input value='Filter' type='button' onClick='render();return false;' class='filter_button' />
+<input value='Reset' type='button' onClick='reset();render();return false;' class='filter_button' />
 </td>
 </tr>
 </table>
 </form>
 </div>
 <div class='wrapper'>
+</div>
+<div id="previewDiv">
+  <table align="center">
+    <tr><td>
+      <div class="zhnx_neirong">
+              <p class="duanluo"><img src='' id='full_img' /></p>
+      </div>
+    </td></tr>
+  </table>
+  <table align="center">
+    <tr><td><div><input type="button" value=" close " onclick="hide();"/></div></td></tr>
+  </table>
 </div>
 </body>
 <script>
@@ -106,14 +121,14 @@ function render() {
             if (filter_item != "") {
                 // 匹配从最左开始
                 // 匹配不到则不展示(continue)
-                if (0 != arr_body[1].toLowerCase().indexOf(filter_item)) {
+                if (0 != arr_body[0].toLowerCase().indexOf(filter_item)) {
                     continue;
                 }
             }
             if (filter_rate != "") {
                 // 需要转成float
                 var f1 = parseFloat(filter_rate);
-                var f2 = parseFloat(arr_body[9]);
+                var f2 = parseFloat(arr_body[8]);
                 console.log("f1: " + f1);
                 console.log("f2: " + f2);
                 // f1不是数字的话，则全不展示
@@ -136,7 +151,7 @@ function render() {
 
             // csv
             for (var h in arr_csv_header) {
-                if (h == 0) continue;
+                // if (h == 0) continue;
                 var v = arr_csv_header[h];
 
                 // header item
@@ -150,7 +165,30 @@ function render() {
             counter_display_csv++;
             div_container.append(div_csv_table);
 
+            var arr_img = arr_body[arr_body.length - 1];
+            for ( var i in arr_img) {
+                var v = arr_img[i];
+                var div_img_item = $('<div><img width='+img_width+' height='+img_height+' /></div>').addClass('img_item');
+                // 设置src
+                $('img', div_img_item).attr("src", img_dir + v);
+                // 添加事件
+                div_img_item.delegate('img', 'mouseover', function() {
+                    //this.style.width = "480px";
+                    //this.style.height = "320px";
+                    show(this.src);
+                });
+                div_img_item.delegate('img', 'mouseout', function() {
+                    this.style.width = img_width;
+                    this.style.height = img_height;
+                });
+                var div_h_item = $('<th rowspan=2></th>').addClass('csv_item').text('');
+                div_h_item.append(div_img_item);
+                $('tr:first', div_csv_table).append(div_h_item);
+            }
+            
+
             // img
+            /**
             var arr_img = arr_body[arr_body.length - 1];
 
             for (var i in arr_img) {
@@ -171,10 +209,38 @@ function render() {
 
             }
             div_container.append(div_img_table);
+            **/
             $('div.wrapper').append(div_container);
         }
 
         console.log("counter_display_csv: " + counter_display_csv);
+}
+
+
+function show(imgsrc){
+    //添加并显示遮罩层
+    $("<div id='mask'></div>").addClass("mask").click(function() {hide();}) .appendTo("body").fadeIn(0);
+    document.getElementById("mask").style.display = "block";
+    var windowWidth = document.documentElement.clientWidth;
+    var windowHeight = document.documentElement.clientHeight;
+    var popupHeight = $("#previewDiv").height();
+    var popupWidth = $("#previewDiv").width();
+    if (popupHeight < 100) {
+        popupHeight = 400;
+        popupWidth  = 400;
+    }
+    $('#mask').css("height",  3000 + $(document).scrollTop());
+    $('#full_img').attr('src', imgsrc);
+    $("#previewDiv").css({
+      "position": "absolute",
+      "top": (windowHeight-popupHeight)/2+$(document).scrollTop(),
+      "left": (windowWidth-popupWidth)/2
+    });
+    $("#previewDiv").show();
+}
+function hide(){
+    $("#mask").remove();
+    $("#previewDiv").hide();
 }
 
 

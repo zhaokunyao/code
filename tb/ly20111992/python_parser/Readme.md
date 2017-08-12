@@ -1,5 +1,12 @@
 # 运行说明
-python ./convert.py
+
+python     convert.py  "exampleData_new.csv" "./newFigureRepositroy" "my reports"
+第一个参数是数据文件名
+第二个参数是图片目录名
+第三个参数是报告名称
+
+每个参数都需要使用双引号
+
 会生成result.html
 使用浏览器打开即可。
 
@@ -35,14 +42,6 @@ var img_height = "200px";
 // 图片默认宽度
 var img_width = "200px";
 ```
-
-另外，如果需要新增字段，建议增加到Rate字段后面，这样应该能够自适应。
-如果增加新字段到Rate字段之前，需要修改一下tpl.html中的
-```
-var f2 = parseFloat(arr_body[9]);
-```
-中的index:9 它表示的是rate字段的index。
-
 
 
 # 文件说明
@@ -81,5 +80,19 @@ convert.py生成出来的结果文件，可以直接用浏览器打开。每次�
 ## rate大于
 数值比较。
 如果输入非数字，可能会有异常。
+
+
+
+# 其它说明
+
+
+数据名字字段放在excel文件第一列，否则就不能正常运行啦。
+
+如果需要新增字段，建议增加到Rate字段后面，这样应该能够自适应。
+如果增加新字段到Rate字段之前，需要修改一下tpl.html中的
+```
+var f2 = parseFloat(arr_body[9]);
+```
+中的index:9 它表示的是rate字段的index(从0开始计数)。
 
 

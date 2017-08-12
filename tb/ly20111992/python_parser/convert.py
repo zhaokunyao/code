@@ -25,9 +25,9 @@ class Converter(object):
         # 配置
         self.arrConf = {
             # 数据文件
-            "csv_file": "./exampleData.csv",
+            "csv_file": "./exampleData_new.csv",
             # 图片目录
-            "img_dir": "./FigureRepositroy",
+            "img_dir": "./newFigureRepositroy",
             # 模板文件
             "tpl_file": "./tpl.html",
             # title
@@ -89,7 +89,7 @@ class Converter(object):
         """
         for arr in self.arrCsvBody: 
             # key就是img文件名的前半部分
-            key = arr[1]
+            key = arr[0]
             # 这条csv数据没有关联的图片
             # 所以我们放一个空数组在后面
             # 以便于保持arr格式的一致性
@@ -113,13 +113,15 @@ class Converter(object):
             # 这种格式的，如果不符合，
             # 则抛出异常
             arrTmp = filename.split("-")
-            if len(arrTmp) != 2: 
-                raise Exception(filename + " format error")
+            #if len(arrTmp) != 2: 
+            #    raise Exception(filename + " format error")
 
             # 用key把文件组织起来
-            key = arrTmp[0].strip()
+            # key = arrTmp[0].strip()
+            key = '-'.join(arrTmp[:-1]).strip()
             if key not in self.arrImg: 
                 self.arrImg[key] = list()
+            # print "add " + filename + " to key: " + key
             self.arrImg[key].append(filename)
         
     def parseCsv(self): 
@@ -144,17 +146,24 @@ class Converter(object):
                 # 认为是body
                 self.arrCsvBody.append(arrTmp)
 
-def main(): 
+def main(arrConf): 
     """main
     调用Converter类的run方法
     """
     o = Converter()
+    for k,v in arrConf.items(): 
+        o.arrConf[k] = v
     o.run()
 
 
 if __name__ == "__main__": 
     try: 
-        main()
+        arrConf = {}
+        if len(sys.argv) == 4: 
+            arrConf['csv_file'] = sys.argv[1]
+            arrConf['img_dir'] = sys.argv[2]
+            arrConf['title'] = sys.argv[3]
+        main(arrConf)
     except Exception as e: 
         print e
         sys.exit(-1)
