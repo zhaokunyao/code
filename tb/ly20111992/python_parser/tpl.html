@@ -6,9 +6,9 @@
 <script src="./js/jquery-3.2.1.min.js"></script>
 <script>
 // 图片高度
-var img_height = "80px";
+var img_height = "120px";
 // 图片宽度
-var img_width = "80px";
+var img_width = "150px";
 // 图片目录
 var img_dir = "####IMG_DIR####";
 // 头
@@ -30,17 +30,22 @@ table {
   border-collapse:collapse;
 }
 .container {
-    padding : 10px;
-    margin : 50px 0 50px 0;
+    /** padding : 10px; **/
+    /**margin : 50px 0 50px 0; **/
     /**border: 1px solid silver;**/
     /** width: 1000px; **/
 }
-.csv_table table {
+.csv_table {
     width: 100%;
 }
 .csv_table .csv_item {
     padding: 5px;
     border: 1px solid silver;
+}
+.csv_table .csv_item_red {
+    padding: 5px;
+    border: 1px solid silver;
+    background: red;
 }
 .img_table {
     overflow: hidden;
@@ -51,7 +56,7 @@ table {
 }
 .div_filter {
     margin: 20px;
-    margin-left:50px;
+    margin-left:0px;
 }
 
 #previewDiv{z-index: 9999;position:absolute;display:none;background:#fff;border-top:5px solid #999;border-bottom:7px solid #999;border-left:5px solid #999;border-right:7px solid #999;}
@@ -59,7 +64,7 @@ table {
                 
 </style>
 </head>
-<body>
+<body onClick="hide();return false;">
 <div class='title'>
 ####TITLE####
 </div>
@@ -68,18 +73,19 @@ table {
 <table>
 <tr>
 <td>
-Tid Filter&nbsp;&nbsp;
+tid filter&nbsp;&nbsp;
 </td>
 <td>
 <input type='text' name='filter_item' id='filter_item' value= '' onkeypress='if(event.keyCode==13) {render();}' />
 </td>
 <td>
-&nbsp;&nbsp;&nbsp;&nbsp;Fail Rate over&bnsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;Fail Rate over&nbsp;&nbsp;
 </td>
 <td>
 <input type='text' name='filter_rate' id='filter_rate' value='' onkeypress='if(event.keyCode==13) {render();}'/>
 </td>
 <td>
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input value='Filter' type='button' onClick='render();return false;' class='filter_button' />
 <input value='Reset' type='button' onClick='reset();render();return false;' class='filter_button' />
 </td>
@@ -98,7 +104,7 @@ Tid Filter&nbsp;&nbsp;
     </td></tr>
   </table>
   <table align="center">
-    <tr><td><div><input type="button" value=" close " onclick="hide();"/></div></td></tr>
+    <tr><td><div style="padding-bottom:20px;"><input type="button" value=" close " onclick="hide();" style="font-size:larger;" /></div></td></tr>
   </table>
 </div>
 </body>
@@ -113,10 +119,8 @@ function render() {
         console.log("filter_rate:" + filter_rate);
         // counter
         var counter_display_csv = 0;
+        var div_csv_table = $('<table><tbody></tbody></table>').addClass('csv_table');
         for (var b in arr_csv_body) {
-            var div_container = $('<div></div>').addClass('container');
-            var div_csv_table = $('<div><table><tbody><tr></tr><tr></tr></tbody></table></div>').addClass('csv_table');
-            var div_img_table = $('<div></div>').addClass('img_table');
             var arr_body = arr_csv_body[b];
             if (filter_item != "") {
                 // 匹配从最左开始
@@ -149,6 +153,10 @@ function render() {
                 }
             }
 
+            // dom: 
+            var trtr = $('<tr></tr>');
+            var trtr2 = $('<tr></tr>');
+
             // csv
             for (var h in arr_csv_header) {
                 // if (h == 0) continue;
@@ -156,17 +164,23 @@ function render() {
 
                 // header item
                 var div_h_item = $('<th></th>').addClass('csv_item').text(v);
-                $('tr:first', div_csv_table).append(div_h_item);
+                trtr.append(div_h_item);
+
+                var item_b_class = "csv_item";
+                if (v.toLowerCase().indexOf('diagnosis') != -1) {
+                    if ( arr_body[h].toLowerCase().indexOf('fail') != -1) {
+                        item_b_class = "csv_item_red";
+                    }
+                }
 
                 // body item
-                var div_b_item = $('<td></td>').addClass('csv_item').text(arr_body[h]);
-                $('tr:nth-child(2)', div_csv_table).append(div_b_item);
+                var div_b_item = $('<td></td>').addClass(item_b_class).text(arr_body[h]);
+                trtr2.append(div_b_item);
             }
             counter_display_csv++;
-            div_container.append(div_csv_table);
 
             var arr_img = arr_body[arr_body.length - 1];
-            for ( var i in arr_img) {
+            for (var i in arr_img) {
                 var v = arr_img[i];
                 var div_img_item = $('<div><img width='+img_width+' height='+img_height+' /></div>').addClass('img_item');
                 // 设置src
@@ -183,44 +197,22 @@ function render() {
                 });
                 var div_h_item = $('<th rowspan=2></th>').addClass('csv_item').text('');
                 div_h_item.append(div_img_item);
-                $('tr:first', div_csv_table).append(div_h_item);
+                trtr.append(div_h_item);
             }
             
-
-            // img
-            /**
-            var arr_img = arr_body[arr_body.length - 1];
-
-            for (var i in arr_img) {
-                var v = arr_img[i];
-                var div_img_item = $('<div><img width='+img_width+' height='+img_height+' /></div>').addClass('img_item');
-                // 设置src
-                $('img', div_img_item).attr("src", img_dir + v);
-                // 添加事件
-                div_img_item.delegate('img', 'mouseover', function() {
-                    this.style.width = "100%";
-                    this.style.height = "100%";
-                });
-                div_img_item.delegate('img', 'mouseout', function() {
-                    this.style.width = img_width;
-                    this.style.height = img_height;
-                });
-                div_img_table.append(div_img_item);
-
-            }
-            div_container.append(div_img_table);
-            **/
-            $('div.wrapper').append(div_container);
+            $('tbody:first', div_csv_table).append(trtr);
+            $('tbody:first', div_csv_table).append(trtr2);
         }
+        $('div.wrapper').append(div_csv_table);
 
         console.log("counter_display_csv: " + counter_display_csv);
 }
 
 
 function show(imgsrc){
-    //添加并显示遮罩层
-    $("<div id='mask'></div>").addClass("mask").click(function() {hide();}) .appendTo("body").fadeIn(0);
-    document.getElementById("mask").style.display = "block";
+    // 添加并显示遮罩层
+    // $("<div id='mask'></div>").addClass("mask").click(function() {hide();}) .appendTo("body").fadeIn(0);
+    // document.getElementById("mask").style.display = "block";
     var windowWidth = document.documentElement.clientWidth;
     var windowHeight = document.documentElement.clientHeight;
     var popupHeight = $("#previewDiv").height();
@@ -229,7 +221,7 @@ function show(imgsrc){
         popupHeight = 400;
         popupWidth  = 400;
     }
-    $('#mask').css("height",  3000 + $(document).scrollTop());
+    // $('#mask').css("height",  3000 + $(document).scrollTop());
     $('#full_img').attr('src', imgsrc);
     $("#previewDiv").css({
       "position": "absolute",
@@ -239,7 +231,7 @@ function show(imgsrc){
     $("#previewDiv").show();
 }
 function hide(){
-    $("#mask").remove();
+    // $("#mask").remove();
     $("#previewDiv").hide();
 }
 
