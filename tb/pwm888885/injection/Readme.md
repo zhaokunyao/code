@@ -59,14 +59,17 @@
 ## 2. 验证nodejs的安装是否正确
 
 2.1 打开一个dos窗口， 输入node -v 并回车， 看是否正常显示nodejs的版本号。
+2.2 我的电脑看此目录是否存在 C:\Users\Administrator\AppData\Roaming\npm目录
 
 ## 3. 复制文件 
 把文件jeff.cmd和`node_modules`目录复制并copy到2.2的目录中。
 
 C:\Users\Administrator\AppData\Roaming\npm整体结构大概是这样的：
 其中有etc `node_modules` 两个目录和jeff.cmd一个文件。
+其中有`node_modules` 目录和jeff.cmd一个文件。
 `node_modules`中有一个jeff目录
 jeff中有bin他`node_modules`两个目录，以及若干js, html, txt文件。
+jeff中有bin和`node_modules`两个目录，以及若干js, html, txt文件。
 
 ## 4. 获取控制机的"内网"ip地址
 可以在dos窗口中输入 ipconfig /all 来查看， 也可以直接在网络连接上点击右键查看。
