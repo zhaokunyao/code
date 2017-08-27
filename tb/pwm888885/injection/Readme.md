@@ -65,10 +65,8 @@
 把文件jeff.cmd和`node_modules`目录复制并copy到2.2的目录中。
 
 C:\Users\Administrator\AppData\Roaming\npm整体结构大概是这样的：
-其中有etc `node_modules` 两个目录和jeff.cmd一个文件。
 其中有`node_modules` 目录和jeff.cmd一个文件。
 `node_modules`中有一个jeff目录
-jeff中有bin他`node_modules`两个目录，以及若干js, html, txt文件。
 jeff中有bin和`node_modules`两个目录，以及若干js, html, txt文件。
 
 ## 4. 获取控制机的"内网"ip地址
@@ -144,7 +142,6 @@ www.qq.com 的ip地址是多少
 ```
 或
 ```
-www.163.com 的ip地址是多少
 www.taobao.com 的ip地址是多少
 ```
 如果网络终端请求的域名是我们需要注入的域名（即dos窗口中jeff的第二个参数），
