@@ -59,7 +59,6 @@
 ## 2. 验证nodejs的安装是否正确
 
 2.1 打开一个dos窗口， 输入node -v 并回车， 看是否正常显示nodejs的版本号。
-2.2 我的电脑打开 C:\Users\Administrator\AppData\Roaming\npm目录，看里面是否存在一个etc目录。
 
 ## 3. 复制文件 
 把文件jeff.cmd和`node_modules`目录复制并copy到2.2的目录中。
@@ -143,6 +142,7 @@ www.qq.com 的ip地址是多少
 或
 ```
 www.163.com 的ip地址是多少
+www.taobao.com 的ip地址是多少
 ```
 如果网络终端请求的域名是我们需要注入的域名（即dos窗口中jeff的第二个参数），
 则发送响应给网络终端
@@ -152,7 +152,7 @@ www.qq.com 的ip地址是控制机的ip地址
 如果网络终端请求的域名并非我们需要注入的域名，
 则发送请求给google的dns服务器：
 ```
-www.163.com 的ip地址是多少
+www.taobao.com 的ip地址是多少
 ```
 等接受到google dns服务器的响应的时候，把此响应转发给网络终端。
 
