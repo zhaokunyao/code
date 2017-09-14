@@ -2,6 +2,9 @@
 '''
 kNN: k Nearest Neighbors
 
+pip install pandas
+pip install sklearn
+
 Input:      inX: vector to compare to existing dataset (1xN)
             dataSet: size m data set of known vectors (NxM)
             labels: data set labels (1xM vector)
@@ -13,6 +16,8 @@ Output:     the most popular class label
 from numpy import *
 import operator
 from os import listdir
+from pandas import DataFrame
+from scipy.stats import mode
 
 def filematrix(filename):        ######从文本文件中解析数据（python 擅长处理文本文件）生成特征矩阵########
     fr = open(filename)
@@ -22,7 +27,7 @@ def filematrix(filename):        ######从文本文件中解析数据（python �
     classLabelVector = []                 #存储样本类别的列表#
     index = 0
     bad_line_count = 0
-    dd={'?':0,'Private':0,'Self-emp-not-inc':1,'Self-emp-inc':2,'Federal-gov':3,'Local-gov':4,'State-gov':5,\
+    dd={'?':None,'Private':0,'Self-emp-not-inc':1,'Self-emp-inc':2,'Federal-gov':3,'Local-gov':4,'State-gov':5,\
            'Without-pay':6,'Never-worked':7,'Bachelors':0,'Some-college':1,'11th':2,'HS-grad':3,'Prof-school':4,\
            'Assoc-acdm':5,'Assoc-voc':6,'9th':7,'7th-8th':8,'12th':9,'Masters':10,'1st-4th':11,'10th':12,\
            'Doctorate':13,'5th-6th':14,'Preschool':15,'Married-civ-spouse':0,'Divorced':1,'Never-married':2,\
@@ -47,6 +52,7 @@ def filematrix(filename):        ######从文本文件中解析数据（python �
             print  line
             bad_line_count += 1
             continue
+
         returnMat[index,0] = int(listFromLine[0])   #循环个别值出错了，所以一行一行展开写的#
         returnMat[index,1] = dd[listFromLine[1]]
         returnMat[index,2] = int(listFromLine[2])
@@ -69,6 +75,19 @@ def filematrix(filename):        ######从文本文件中解析数据（python �
     # 切片 去掉多余的行
     if bad_line_count > 0:
         returnMat = returnMat[:numberOfLines-bad_line_count]
+
+    # 转成 pd
+    column_array = [
+        'age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+        'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
+    ]
+    #index_array = [i for i in xrange(0, numberOfLines-bad_line_count)]
+    df = DataFrame(returnMat, columns=column_array)
+    # print df.isnull().sum()
+    # 填充缺失值
+    df['workclass'].fillna(mode(df['workclass']).mode[0], inplace=True)
+    df['occupation'].fillna(mode(df['occupation']).mode[0], inplace=True)
+    df['native-country'].fillna(mode(df['native-country']).mode[0], inplace=True)
     return returnMat, classLabelVector
 
 
