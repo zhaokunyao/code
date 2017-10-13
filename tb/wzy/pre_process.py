@@ -14,6 +14,7 @@ import numpy as np
 import operator
 import pandas as pd
 import matplotlib
+from sklearn import model_selection
 
 class PreProcess(object): 
     """PreProcess
@@ -34,11 +35,71 @@ class PreProcess(object):
             'DEFAULT': 1
         }
 
+        self.arrEmpLength = {
+            '1 YEAR': 1,
+            '2 YEARS': 2,
+            '3 YEARS': 3,
+            '4 YEARS': 4,
+            '5 YEARS': 5,
+            '6 YEARS': 6,
+            '7 YEARS': 7,
+            '8 YEARS': 8,
+            '9 YEARS': 9,
+            '10+ YEARS': 10
+        }
+
+        self.arrHomeOwnership = {
+            'MORTGAGE': 1,
+            'RENT': 2,
+            'OTHER': 3,
+            'OWN': 4,
+            'NONE': 5,
+            'ANY': 6 
+        }
+
     def go(self): 
         """go
         """
         self.loadFile()
         self.featureAnalysis()
+        self.save()
+
+    def save(self): 
+        """save feature and result to svm file
+        """
+
+        # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split
+        arrXTrain, arrXTest, arrYTrain, arrYTest = \
+            model_selection.train_test_split(
+                self.arrFeatures, self.arrResults, test_size=0.25)
+
+        with open('./test.svm', 'w') as f: 
+            index = 0
+            for X in arrXTest: 
+                Y = arrYTest[index]
+                index += 1
+                vector = list()
+                vector.append(str(Y) + ' ')
+                i = 0
+                for feature in X: 
+                    vector.append(str(i) + ':' + str('%.6f' % feature))
+                    i += 1
+                vector.append(str(i) + ':' + str('%.6f' % 0))
+                f.write(' '.join(vector) + '\n')
+
+        with open('./train.svm', 'w') as f: 
+            index = 0
+            for X in arrXTrain: 
+                Y = arrYTrain[index]
+                index += 1
+                vector = list()
+                vector.append(str(Y) + ' ')
+                i = 0
+                for feature in X: 
+                    vector.append(str(i) + ':' + str('%.6f' % feature))
+                    i += 1
+                vector.append(str(i) + ':' + str('%.6f' % 0))
+                f.write(' '.join(vector) + '\n')
 
     def featureAnalysis(self): 
         """featureAnalysis
@@ -61,6 +122,7 @@ class PreProcess(object):
         print self.df[feature_name].describe()
         print '------------------------------------------------'
 
+        """
         if feature_name == "emp_length" or feature_name == "home_ownership": 
             # categorical
             fig = self.df[feature_name].value_counts().plot(kind='bar').get_figure()
@@ -73,6 +135,7 @@ class PreProcess(object):
             fig.subplots_adjust(bottom=0.2)
             fig.savefig(feature_name+".png")
             fig.clear()
+        """
 
 
     def loadFile(self): 
@@ -105,10 +168,21 @@ class PreProcess(object):
                     delinq_2yrs = int(arrTokens[26-1])
                     open_acc = int(arrTokens[33-1])
                     dti = float(arrTokens[25-1])
+
                     emp_length = arrTokens[12-1].strip().upper()
+                    if emp_length in self.arrEmpLength: 
+                        emp_length = self.arrEmpLength[emp_length]
+                    else: 
+                        emp_length = 0
+
                     funded_amnt = int(arrTokens[4-1])
                     tot_cur_bal = int(arrTokens[63-1])
+
                     home_ownership = arrTokens[13-1].strip().upper()
+                    if home_ownership in self.arrHomeOwnership: 
+                        home_ownership = self.arrHomeOwnership[home_ownership]
+                    else: 
+                        home_ownership = 0
 
                 except Exception as e: 
                     arrCounts['format_error'] += 1
@@ -146,7 +220,7 @@ class PreProcess(object):
         self.df = pd.DataFrame(self.arrFeatures, columns=arrColumns)
         # print self.df.isnull().sum()
         print arrCounts
-        print '--------------------------'
+        print '------------------------------------------------'
 
 if __name__ == "__main__": 
     o = PreProcess()
