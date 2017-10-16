@@ -122,20 +122,17 @@ class PreProcess(object):
         print self.df[feature_name].describe()
         print '------------------------------------------------'
 
-        """
         if feature_name == "emp_length" or feature_name == "home_ownership": 
             # categorical
             fig = self.df[feature_name].value_counts().plot(kind='bar').get_figure()
-            fig.subplots_adjust(bottom=0.2)
-            fig.savefig(feature_name+".png")
-            fig.clear()
         else: 
             # continuous
-            fig = self.df[feature_name].plot().get_figure()
-            fig.subplots_adjust(bottom=0.2)
-            fig.savefig(feature_name+".png")
-            fig.clear()
-        """
+            fig = self.df[feature_name].plot.hist(bins=50).get_figure()
+
+        fig.set_size_inches(18.5, 10.5)
+        fig.subplots_adjust(bottom=0.2)
+        fig.savefig(feature_name+".png")
+        fig.clear()
 
 
     def loadFile(self): 
