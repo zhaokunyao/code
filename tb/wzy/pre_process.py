@@ -121,6 +121,7 @@ class PreProcess(object):
         print 'analyse feature : ' + feature_name
         print self.df[feature_name].describe()
         print '------------------------------------------------'
+        return
 
         if feature_name == "emp_length" or feature_name == "home_ownership": 
             # categorical
@@ -214,8 +215,17 @@ class PreProcess(object):
             'open_acc', 'dti', 'emp_length', 'funded_amnt', 'tot_cur_bal',
             'home_ownership'
         ]
-        self.df = pd.DataFrame(self.arrFeatures, columns=arrColumns)
+        self.df = pd.DataFrame(self.arrFeatures)
         # print self.df.isnull().sum()
+        print self.df.head(3)
+        # useless ...
+        from sklearn.preprocessing import Normalizer
+        ndarray = Normalizer(norm='l2').fit_transform(self.df)  
+        self.df = pd.DataFrame(ndarray, columns=arrColumns)
+        print self.df.head(3)
+        self.arrFeatures = list()
+        self.arrFeatures = self.df.values.tolist()
+
         print arrCounts
         print '------------------------------------------------'
 

@@ -83,14 +83,14 @@ class HoldOutSetTest(object):
         """__init__
         """
         self.arrClassifiers = {
-            'NB': naive_bayes_classifier,
-            'SGD': sgd_classifier,
+            #'NB': naive_bayes_classifier,
+            #'SGD': sgd_classifier,
             'LR': logistic_regression_classifier,
-            'RF': random_forest_classifier,
-            'DT': decision_tree_classifier,
+            #'RF': random_forest_classifier,
+            #'DT': decision_tree_classifier,
             'LIBLINEAR': liblinear_classifier,
             #'GBDT': gradient_boosting_classifier,
-            'KNN': knn_classifier,
+            #'KNN': knn_classifier,
             #'SVM': svm_classifier,
         }
         self.arrEva = dict()
