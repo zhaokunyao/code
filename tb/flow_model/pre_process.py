@@ -16,6 +16,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import cross_val_score
 
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import Ridge
 
 
 class PreProcess(object): 
@@ -26,159 +27,97 @@ class PreProcess(object):
         """__init__
         """
         self.arrFiles = {
-            'thompson': 'thompson.txt',
-            'amboy': 'amboy.txt',
-            'admin': 'admin.txt',
-            'riverside': 'riverside.txt',
+            'thompson': 'data/thompson.txt',
+            'amboy': 'data/amboy.txt',
+            'admin': 'data/admin.txt',
+            'riverside': 'data/riverside.txt',
         }
 
     def loadDataset(self):
         """loadDataset
         """
-        print 
-        print '==================== riverside ====================='
-        self.loadRiverside()
-        print 
-        print '==================== thompson ======================'
         self.loadThompson()
-        print 
-        print '==================== admin ========================='
         self.loadAdmin()
-        print 
-        print '==================== amboy ========================='
+        self.loadRiverside()
         self.loadAmboy()
 
     def loadRiverside(self): 
         """
         """
+        src = 'riverside'
         dateparser = lambda dates: pd.datetime.strptime(dates, '%m/%d/%y %H:00:00')
-        df = pd.read_csv(self.arrFiles['riverside'], sep='\t', parse_dates=[1], date_parser=dateparser)
+        df = pd.read_csv(self.arrFiles[src], sep='\t', parse_dates=[1], date_parser=dateparser)
         df.columns = ["gaps", "time", "streamflow", "meterflow", 'rainfall']
         del df['gaps']
-        print 
-        print '-----------------df---------------'
-        #print df.dtypes
-        print df.shape
-        print df.head(3)
         df2 = df.set_index(pd.DatetimeIndex(pd.to_datetime(df['time'])))
 
         del df2['time']
-        print 
-        print '-----------------df with time index--------------'
-        #print df2.dtypes
-        print df2.shape
-        print df2.head(3)
+        self.figureall(df2, src)
 
-        print 
-        print '===================fig seasonly========================='
-        self.figure(df2, 'riverside', 'seasonly')
-        print '==================fig daily===================='
-        self.figure(df2, 'riverside', 'daily')
-        print '==================fig half daily=================='
-        self.figure(df2, 'riverside', 'half_daily')
-        print '===================fig hourly========================='
-        self.figure(df2, 'riverside', 'hourly')
 
     def loadAdmin(self): 
         """
         """
+        src = 'admin'
         dateparser = lambda dates: pd.datetime.strptime(dates, '%m/%d/%y %H:00:00')
-        df = pd.read_csv(self.arrFiles['admin'], sep='\t', parse_dates=[1], date_parser=dateparser)
+        df = pd.read_csv(self.arrFiles[src], sep='\t', parse_dates=[1], date_parser=dateparser)
         df.columns = ["gaps", "time", "streamflow", "meterflow", 'time2', 'meterflow2', 'rainfall']
         del df['gaps']
         del df['time2']
         del df['meterflow2']
-        print 
-        print '-----------------df---------------'
-        #print df.dtypes
-        print df.shape
-        print df.head(3)
         df2 = df.set_index(pd.DatetimeIndex(pd.to_datetime(df['time'])))
 
         del df2['time']
-        print 
-        print '-----------------df with time index--------------'
-        #print df2.dtypes
-        print df2.shape
-        print df2.head(3)
-
-        print 
-        print '==================fig daily===================='
-        self.figure(df2, 'admin', 'daily')
-        print '===================fig seasonly========================='
-        self.figure(df2, 'admin', 'seasonly')
-        print '==================fig half daily=================='
-        self.figure(df2, 'admin', 'half_daily')
-        print '===================fig hourly========================='
-        self.figure(df2, 'admin', 'hourly')
-
-    def loadAmboy(self): 
-        """
-        """
-        dateparser = lambda dates: pd.datetime.strptime(dates, '%m/%d/%y %H:00:00')
-        df = pd.read_csv(self.arrFiles['amboy'], sep='\t', parse_dates=[1], date_parser=dateparser)
-        df.columns = ["gaps", "time", "streamflow", "meterflow", 'time2', 'meterflow2', 'rainfall']
-        del df['gaps']
-        del df['time2']
-        del df['meterflow2']
-        print 
-        print '-----------------df---------------'
-        #print df.dtypes
-        print df.shape
-        print df.head(3)
-        df2 = df.set_index(pd.DatetimeIndex(pd.to_datetime(df['time'])))
-
-        del df2['time']
-        print 
-        print '-----------------df with time index--------------'
-        #print df2.dtypes
-        print df2.shape
-        print df2.head(3)
-
-        print 
-        print '===================fig seasonly========================='
-        self.figure(df2, 'amboy', 'seasonly')
-        print 
-        print '==================fig daily===================='
-        self.figure(df2, 'amboy', 'daily')
-        print 
-        print '==================fig half daily=================='
-        self.figure(df2, 'amboy', 'half_daily')
-        print 
-        print '===================fig hourly========================='
-        self.figure(df2, 'amboy', 'hourly')
+        self.figureall(df2, src)
 
 
     def loadThompson(self): 
         """
         """
+        src = 'thompson'
         dateparser = lambda dates: pd.datetime.strptime(dates, '%m/%d/%y %H:00:00')
-        df = pd.read_csv(self.arrFiles['thompson'], sep='\t', parse_dates=[1], date_parser=dateparser)
-        df.columns = ["gaps", "time", "streamflow", "meterflow", "rainfall"]
+        df = pd.read_csv(self.arrFiles[src], sep='\t', parse_dates=[1], date_parser=dateparser)
+        df.columns = ["gaps", "time", "streamflow", "meterflow", 'rainfall']
         del df['gaps']
-        print 
-        print '-----------------df---------------'
-        #print df.dtypes
-        print df.shape
-        print df.head(3)
         df2 = df.set_index(pd.DatetimeIndex(pd.to_datetime(df['time'])))
 
         del df2['time']
-        print 
-        print '-----------------df with time index--------------'
-        #print df2.dtypes
-        print df2.shape
-        print df2.head(3)
 
+        # 15年缺失值太多， 直接drop掉
+        df2 = df2.loc['2016-01-27':'2017']
+        self.figureall(df2, src)
+
+    def loadAmboy(self): 
+        """
+        """
+        src = 'amboy'
+        dateparser = lambda dates: pd.datetime.strptime(dates, '%m/%d/%y %H:00:00')
+        df = pd.read_csv(self.arrFiles[src], sep='\t', parse_dates=[1], date_parser=dateparser)
+        df.columns = ["gaps", "time", "streamflow", "meterflow", 'time2', 'meterflow2', 'rainfall']
+        del df['gaps']
+        del df['time2']
+        del df['meterflow2']
+        df2 = df.set_index(pd.DatetimeIndex(pd.to_datetime(df['time'])))
+
+        del df2['time']
+        self.figureall(df2, src)
+
+
+
+    def figureall(self, df2, src): 
         print 
-        print '===================fig seasonly========================='
-        self.figure(df2, 'thompson', 'seasonly')
-        print '==================fig daily===================='
-        self.figure(df2, 'thompson', 'daily')
-        print '==================fig half daily=================='
-        self.figure(df2, 'thompson', 'half_daily')
-        print '===================fig hourly========================='
-        self.figure(df2, 'thompson', 'hourly')
+        print '===================%s seasonly=========================' % src
+        self.figure(df2, src, 'seasonly')
+        print 
+        print '==================%s daily====================' % src
+        self.figure(df2, src, 'daily')
+        print 
+        print '==================%s half daily==================' % src
+        self.figure(df2, src, 'half_daily')
+        print 
+        print '===================%s hourly=========================' % src
+        self.figure(df2, src, 'hourly')
+
 
     def figure(self, df2, src, time_range): 
         if time_range == "daily": 
@@ -191,40 +130,43 @@ class PreProcess(object):
             resample_range = '1H'
         
         df3 = df2.resample(resample_range).mean()
-        print 
-        print '---------------df resample %s----------' % resample_range
-        print df3.shape
-        print df3.head(3)
+        #print 
+        #print '---------------df resample %s----------' % resample_range
+        #print df3.shape
+        #print df3.head(3)
 
         # 用前一个数据代替NaN：method='pad'
-        print 
-        print '---------------fill na------------------------'
-        print df3.isnull().sum()
-        df4= df3.fillna(method='pad')
-        print df4.describe()
+        #print 
+        #print '---------------fill na------------------------'
+        #print df3.isnull().sum()
+        #df4= df3.fillna(method='pad')
+        # 平均值填充缺失
+        df4= df3.fillna(df3.mean())
+        #print df4.describe()
 
         # 画图
         #print 
         #print '---------------save figure--------------------'
         #fig = df4.plot(subplots=True)
-        #plt.savefig('./%s_%s_original.png' % (src, time_range))
+        #plt.savefig('./img/%s_%s_original.png' % (src, time_range))
         #plt.clf()
+        #plt.close()
 
         # 处理异常值
-        print 
-        print '---------------winsorize---------------------------'
-        df4['streamflow'] = mstats.winsorize(df4['streamflow'].values, limits=(0.05, 0.03))
-        df4['meterflow'] = mstats.winsorize(df4['meterflow'].values, limits=(0.05, 0.03))
-        df4['rainfall'] = mstats.winsorize(df4['rainfall'].values, limits=(0.05, 0.03))
+        #print 
+        #print '---------------winsorize---------------------------'
+        df4['streamflow'] = mstats.winsorize(df4['streamflow'].values, limits=(0.03, 0.03))
+        df4['meterflow'] = mstats.winsorize(df4['meterflow'].values, limits=(0.03, 0.03))
+        df4['rainfall'] = mstats.winsorize(df4['rainfall'].values, limits=(0.03, 0.03))
 
-        print df4['streamflow'].describe()
-        print df4['meterflow'].describe()
-        print df4['rainfall'].describe()
+        #print df4['streamflow'].describe()
+        #print df4['meterflow'].describe()
+        #print df4['rainfall'].describe()
 
         
         # 画图
-        print
-        print '---------------save figure--------------------'
+        #print
+        #print '---------------save figure--------------------'
         fig, ax = plt.subplots(figsize=(20, 10))
         ax2 = ax.twinx()
         if src == 'admin': 
@@ -255,8 +197,9 @@ class PreProcess(object):
         ax.legend([ax.get_lines()[0], ax2.get_lines()[0], ax.get_lines()[0]],\
             ['streamflow','meterflow'], bbox_to_anchor=(1.3, 0.5))
         
-        plt.savefig('./%s_%s_streamflow_meterflow.png' % (src, time_range))
+        plt.savefig('./img/%s_%s_streamflow_meterflow.png' % (src, time_range))
         plt.clf()
+        plt.close()
 
         fig, ax = plt.subplots(figsize=(20, 10))
         ax2 = ax.twinx()
@@ -273,55 +216,75 @@ class PreProcess(object):
         ax.legend([ax.get_lines()[0], ax2.get_lines()[0], ax.get_lines()[0]],\
             ['streamflow','rainfall'], bbox_to_anchor=(1.3, 0.5))
         
-        plt.savefig('./%s_%s_streamflow_rainfall.png' % (src, time_range))
+        plt.savefig('./img/%s_%s_streamflow_rainfall.png' % (src, time_range))
         plt.clf()
+        plt.close()
+
+        # 相关系数
+        # 相关系数为正值，说明一个变量变大另一个变量也变大；
+        # 取负值说明一个变量变大另一个变量变小，
+        # 取0说明两个变量没有相关关系。
+        # 相关系数的绝对值越接近1，线性关系越显著。 
+        print 'corr of streamflow and meterflow:', df4['streamflow'].corr(df4['meterflow'])
+        print 'corr of streamflow and rainfall:' ,df4['streamflow'].corr(df4['rainfall'])
 
         # LR回归
-        print 
-        print '----------------LR----------------'
         x = df4[['meterflow', 'rainfall']].values
         y = df4[['streamflow']].values
 
-        kf = KFold(len(x), n_folds=5)
+        n_folds = 5
+        kf = KFold(len(x), n_folds=n_folds)
         model = LinearRegression()
         
         total_score = 0
+        current_round = 0
         for train, test in kf: 
             model.fit(x[train], y[train].ravel())
             score = model.score(x[test], y[test].ravel())
             total_score += (score)
-        print total_score / 5
+            current_round += 1
+            # 只取最后一折的score
+            if current_round == n_folds: 
+                print "LR:", score
 
         # 多项式回归
-        print 
-        print '------------------------ PolynomialFeatures 2 degree---------'
         x = df4[['meterflow', 'rainfall']].values
         y = df4[['streamflow']].values
-        kf = KFold(len(x), n_folds=5)
+        kf = KFold(len(x), n_folds=n_folds)
         model = LinearRegression() # 创建一个线性回归实例
         
         total_score = 0
+        current_round = 0
         for train, test in kf: 
             quadratic_featurizer = PolynomialFeatures(degree=2) # 实例化一个二次多项式特征实例
             X_train_quadratic = quadratic_featurizer.fit_transform(x[train]) # 用二次多项式对样本X值做变换
-            X_test_quadratic = quadratic_featurizer.fit_transform(x[test])
+            X_test_quadratic = quadratic_featurizer.transform(x[test])
             model.fit(X_train_quadratic, y[train]) # 以多项式变换后的x值为输入，代入线性回归模型做训练
             score = model.score(X_test_quadratic, y[test])
             total_score += (score)
-        print total_score / 5
+            current_round += 1
+            # 只取最后一折的score
+            if current_round == n_folds: 
+                print "Polynomial: " , score
 
-        """
-        quadratic_featurizer = PolynomialFeatures(degree=2) # 实例化一个二次多项式特征实例
-        X_train_quadratic = quadratic_featurizer.fit_transform(x) # 用二次多项式对样本X值做变换
-        X_test_quadratic = quadratic_featurizer.fit_transform(x)
-        model.fit(X_train_quadratic, y) # 以多项式变换后的x值为输入，代入线性回归模型做训练
-        score = model.score(X_test_quadratic, y)
-        print score
-        """
+        # 岭回归
+        x = df4[['meterflow', 'rainfall']].values
+        y = df4[['streamflow']].values
+        kf = KFold(len(x), n_folds=n_folds)
+        model = Ridge(alpha=.6)
+        total_score = 0
+        current_round = 0
+        for train, test in kf: 
+            model.fit(x[train], y[train].ravel())
+            score = model.score(x[test], y[test].ravel())
+            total_score += (score)
+            current_round += 1
+            # 只取最后一折的score
+            if current_round == n_folds: 
+                print "Ridge:", score
+        
 
         # SGD回归
-        print 
-        print '----------------SGD----------------'
         x = df4[['meterflow', 'rainfall']].values
         y = df4[['streamflow']].values
 
@@ -331,10 +294,18 @@ class PreProcess(object):
         x = x_scaler.fit_transform(x)
         y = x_scaler.fit_transform(y)
 
-        regressor = SGDRegressor(loss='squared_loss', max_iter=1000000, tol=1e3)
-        scores = cross_val_score(regressor, x, y.ravel(), cv=5)
-        print('R2 mean:', np.mean(scores))
-        
+        model = SGDRegressor(loss='squared_loss', max_iter=1000000, tol=1e3)
+        # scores = cross_val_score(regressor, x, y.ravel(), cv = n_folds)
+        total_score = 0
+        current_round = 0
+        for train, test in kf: 
+            model.fit(x[train], y[train].ravel())
+            score = model.score(x[test], y[test].ravel())
+            total_score += (score)
+            current_round += 1
+            # 只取最后一折的score
+            if current_round == n_folds: 
+                print "SGD:", score
             
         # 回归 streamflow与meterflow
         """
@@ -351,8 +322,9 @@ class PreProcess(object):
         m = slope[0]
         c = slope[1]
         plt.plot(x, m*x + c, 'r')
-        plt.savefig('./%s_%s_streamflow_meterflow.png' % (src, time_range))
+        plt.savefig('./img/%s_%s_streamflow_meterflow.png' % (src, time_range))
         plt.clf()
+        plt.close()
         """
 
 
@@ -371,8 +343,9 @@ class PreProcess(object):
         m = slope[0]
         c = slope[1]
         plt.plot(x, m*x + c, 'r')
-        plt.savefig('./%s_%s_streamflow_rainfall.png' % (src, time_range))
+        plt.savefig('./img/%s_%s_streamflow_rainfall.png' % (src, time_range))
         plt.clf()
+        plt.close()
         """
 
 
