@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<malloc.h>
 // 树节点中保存的最大字符长度
 #define NODE_DATA_LENGTH  20
 
@@ -93,6 +92,8 @@ node make_tree(char * str) {
     int i;
     int j = 0;
     node tmp;
+    node a;
+    node b;
     // 遍历字符串
     for(i=0; str[i]!= '\n'; i++)
     {
@@ -110,6 +111,27 @@ node make_tree(char * str) {
             char data[NODE_DATA_LENGTH];
             data[0] = str[i];
             data[1] = '\0';
+            // 如果栈2是空的， 入栈2 
+            if (top_operator == -1){
+                tmp = newnode(data);
+                stack_operator[++top_operator]=tmp;
+                continue;
+            }
+
+            // 读取栈2的头部
+            tmp =  stack_operator[top_operator];
+            // 如果是  -  且当前操作符是 +
+            if (tmp->data[0] == '-'  && data[0] == '+') {
+                tmp = stack_operator[top_operator--];
+                a = stack[top--];
+                b = stack[top--];
+                tmp->left   = b;
+                tmp->right  = a;
+                tmp->result = b->result - a->result;
+                // 然后把新的node保存到栈1中。
+                stack[++top]=tmp;
+            }
+            // 操作符入栈2
             tmp = newnode(data);
             stack_operator[++top_operator]=tmp;
             break;
@@ -140,6 +162,34 @@ node make_tree(char * str) {
             node p_kehao = make_tree(new_buff);
             // 把新树的root节点保存到栈1
             stack[++top]=p_kehao;
+
+
+            // 如果栈2是空的， 什么也不做
+            if (top_operator == -1){
+                continue;
+            }
+
+            // 读取栈2的头部
+            tmp =  stack_operator[top_operator];
+            // 如果是 + - 则什么也不做
+            if (tmp->data[0] == '+' || tmp->data[0] == '-') {
+                continue;
+            }
+            // 如果是* / 就取栈1头部的2个数字计算
+            // 并把结果保存到新的node
+            tmp = stack_operator[top_operator--];
+            a = stack[top--];
+            b = stack[top--];
+            tmp->left   = b;
+            tmp->right  = a;
+            if (tmp->data[0] == '*') {
+                tmp->result = b->result * a->result;
+            } else {
+                tmp->result = b->result / a->result;
+            }
+            // 然后把新的node保存到栈1中。
+            stack[++top]=tmp;
+
             break;
 
         default:
@@ -173,14 +223,14 @@ node make_tree(char * str) {
             // 如果是* / 就取栈1头部的2个数字计算
             // 并把结果保存到新的node
             tmp = stack_operator[top_operator--];
-            node a = stack[top--];
-            node b = stack[top--];
+            a = stack[top--];
+            b = stack[top--];
             tmp->left   = b;
             tmp->right  = a;
             if (tmp->data[0] == '*') {
-                tmp->result = a->result * b->result;
+                tmp->result = b->result * a->result;
             } else {
-                tmp->result = a->result / b->result;
+                tmp->result = b->result / a->result;
             }
             // 然后把新的node保存到栈1中。
             stack[++top]=tmp;
@@ -218,32 +268,34 @@ int main()
 {
     int size = 1024;
     char str[size];
-    printf("\nEnter the postfix expression: ");
+    while (1) {
+        printf("\nEnter the postfix expression: ");
 
-    // 输入表达式
-    fgets(str, size, stdin);
+        // 输入表达式
+        fgets(str, size, stdin);
 
-    double result = 0;
+        double result = 0;
 
-    // 建树并返回树的根节点
-    node root = make_tree(str);
+        // 建树并返回树的根节点
+        node root = make_tree(str);
 
-    // 表达式的结果就保存在根节点里面
-    result = root->result;
-    printf("result is %f\n", result);
+        // 表达式的结果就保存在根节点里面
+        result = root->result;
+        printf("result is %f\n", result);
 
-    printf("preorder: \n");
-    preorder(root);
-    printf("\n");
+        printf("preorder: \n");
+        preorder(root);
+        printf("\n");
 
-    printf("postorder: \n");
-    postorder(root);
-    printf("\n");
+        printf("postorder: \n");
+        postorder(root);
+        printf("\n");
 
-    printf("inorder: \n");
-    inorder(root);
-    printf("\n");
+        printf("inorder: \n");
+        inorder(root);
+        printf("\n");
 
-    print_tree(root, 1);
+        print_tree(root, 1);
+    }
     return 0;
 }
