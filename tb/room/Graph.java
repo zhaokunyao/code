@@ -1,188 +1,100 @@
+import java.util.Scanner;
 
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+/**
+ * Graph
+ *
+ * user interface and the main.
+ *
+ * @version 1.0
+ */
 public class Graph {
-	
-	public static void main(String[] args){
-		List<Room> roomList = new ArrayList<Room>();
-		int num = 6;
-		for(int i=0;i<num*num;i++){
-			Room room = new Room();
-			if(i<num){
-				//第一行,nWall不允许有door.
-				room.setnWallCanDoor(false);
-			}
-			if(i%num==0){
-				//第一列,wWall不允许有door
-				room.setwWallCanDoor(false);
-			}
-			if(i>=(num*(num-1))){
-				//最后一行,sWall不允许有door
-				room.setsWallCanDoor(false);
-			}
-			if((i+1)%num==0){
-				//最后一列,eWall不允许有door
-				room.seteWallCanDoor(false);
-			}
-			roomList.add(room);
-		}
-		//设置门
-		setBatchRoomDoor(roomList,num);
-		//输出阵型图
-		printRooms(roomList,num);
-		//打印指定房间的门
-		int row=2;
-		int col=3;
-		int roomIndex = (row-1)*num+col-1;
-		Room targetRoom = roomList.get(roomIndex);
-		String doorStr = row+"排"+col+"列";
-		if(targetRoom.getnWall().contains("D")){
-			doorStr += "\t north has door. \n";
-		}
-		if(targetRoom.getEwWall().startsWith("D")){
-			doorStr += "\t west has door. \n";
-		}
-		if(targetRoom.getsWall().contains("D")){
-			doorStr += "\t south has door. \n";
-		}
-		if(targetRoom.getEwWall().endsWith("D")){
-			doorStr += "\t east has door. \n";
-		}
-		System.out.println(doorStr);
-	}
-	
-	/**
-	 * 设置门
-	 */
-	private static void setBatchRoomDoor(List<Room> roomList,int num){
-		for(int i=0;i<roomList.size();i++){
-			Room room = roomList.get(i);
-			if(room.getDoorCount()<2 && room.getCanSetDoorCount()>0){
-				setSingleRoomDoor(room,i,num,roomList);
-			}
-		}
-	}
-	
-	private static void setSingleRoomDoor(Room room,int roomIndex,int num,List<Room> roomList){
-		int canSetDoorCount = room.getCanSetDoorCount();
-		//还有几个需要设置门的
-		int needSetDoor = 2-room.getDoorCount();
-		List<Integer> setDoorIndex = getRandomArrayFromArray(needSetDoor,canSetDoorCount);
-		int canSetDoorIndex = 0;
-		//
-		if(room.iseWallCanDoor()){
-			if(setDoorIndex.contains(canSetDoorIndex)){
-				// eWall需设置门
-				room.seteWallCanDoor(false);
-				String eWall = room.getEwWall().replace("   |", "   D");
-				room.setEwWall(eWall);
-				
-				//右边的房子
-				Room rightRoom = roomList.get(roomIndex+1);
-				rightRoom.setwWallCanDoor(false);
-				String wWall = rightRoom.getEwWall().replace("|   ", "D   ");
-				rightRoom.setEwWall(wWall);
-			}
-			canSetDoorIndex++;
-		}
-		
-		if(room.issWallCanDoor()){
-			if(setDoorIndex.contains(canSetDoorIndex)){
-				// sWall需设置门
-				room.setsWallCanDoor(false);
-				String sWall = room.getsWall().replace("-----", "--D--");
-				room.setsWall(sWall);
-				
-				// 下边的房子
-				Room downRoom = roomList.get(roomIndex+num);
-				downRoom.setnWallCanDoor(false);
-				String nWall = downRoom.getnWall().replace("-----", "--D--");
-				downRoom.setnWall(nWall);
-			}
-			canSetDoorIndex++;
-		}
-		
-		if(room.iswWallCanDoor()){
-			if(setDoorIndex.contains(canSetDoorIndex)){
-				// wWall需设置门
-				room.setwWallCanDoor(false);
-				String ewWall = room.getEwWall().replace("|   ", "D   ");
-				room.setEwWall(ewWall);
-				
-				// 左边的房子
-				Room leftRoom = roomList.get(roomIndex-1);
-				leftRoom.seteWallCanDoor(false);
-				String eWall = leftRoom.getEwWall().replace("   |", "   D");
-				leftRoom.setEwWall(eWall);
-			}
-			canSetDoorIndex++;
-		}
-		
-		if(room.isnWallCanDoor()){
-			if(setDoorIndex.contains(canSetDoorIndex)){
-				// nWall需设置门
-				room.setnWallCanDoor(false);
-				String nWall = room.getnWall().replace("-----", "--D--");
-				room.setnWall(nWall);
-				
-				// 上边的房子
-				Room upRoom = roomList.get(roomIndex-num);
-				upRoom.setsWallCanDoor(false);
-				String sWall = upRoom.getsWall().replace("-----", "--D--");
-				upRoom.setsWall(sWall);
-			}
-		}
-//		}
-	}
-	
-	private static List<Integer> getRandomArrayFromArray(int needArraysSize,int options){
-		List<Integer> result = new ArrayList<Integer>();
-		Random radom = new Random();
-		while(true){
-			int index = radom.nextInt(options);
-			if(!result.contains(index)){
-				result.add(index);
-				
-				if(result.size()==needArraysSize){
-					break;
-				}
-			}
-		}
-		
-		return result;
-	}
-	
-	
-	/**
-	 * 输出房间
-	 * @param roomList
-	 * @param num
-	 */
-	private static void printRooms(List<Room> roomList,int num){
-		for(int i=0;i<num;i++){
-			for(int j=0;j<num;j++){
-				System.out.print(roomList.get(i*num+j).getnWall());
-			}
-			System.out.print("\n");
-			for(int j=0;j<num;j++){
-				System.out.print(roomList.get(i*num+j).getSide());
-			}
-			System.out.print("\n");
-			for(int j=0;j<num;j++){
-				System.out.print(roomList.get(i*num+j).getEwWall());
-			}
-			System.out.print("\n");
-			for(int j=0;j<num;j++){
-				System.out.print(roomList.get(i*num+j).getSide());
-			}
-			System.out.print("\n");
-			for(int j=0;j<num;j++){
-				System.out.print(roomList.get(i*num+j).getsWall());
-			}
-			System.out.print("\n");
-		}
-	}
+
+    /**
+     * main
+     *
+     * the main function.
+     *
+     * @access public
+     * @param string[]
+     */
+    public static void main(String[] args){
+        Scanner scn = new Scanner(System.in);
+        System.out.print("Please enter the size of the warehouse: ");
+        // parse user's input
+        int num = Integer.parseInt(scn.nextLine());
+
+        // create a warehouse as a square (n x n) array of rooms
+        // with no doors in any of the rooms
+        Warehouse wareHouse = new Warehouse(num);
+
+        // randomly give each room some doors
+        wareHouse.install();
+
+        // draw the floorplan of the warehouse, 
+        // indicating the position of each door.
+        wareHouse.print();
+
+        // ask the user to enter a starting position for the game
+        // number each row and column from 1
+        int[] position=inputPosition(scn,num);
+        int row = position[0];
+        int col = position[1];
+        // calculate room index
+        int roomIndex = (row-1)*num+col-1;
+        // get the room from warehouse
+        Room room = wareHouse.getRoomList().get(roomIndex);
+        if(room !=null){
+            // describe that room to the user.
+            room.print();
+        }
+    }
+
+    /**
+     * inputPosition
+     *
+     * ask the user to enter a starting position for the game
+     *
+     * @access private static
+     * @param Scanner
+     * @param int 
+     * @return int[]
+     */
+    private static int[] inputPosition(Scanner scn,int size){
+        int[] position = new int[2];
+
+        System.out.print("Enter starting position (row col): ");
+        // parse user's input
+        String inputStr = scn.nextLine();
+        if(inputStr==null 
+                || inputStr.trim()==null 
+                || !inputStr.trim().contains(" ")
+                || inputStr.trim().split(" ").length!=2){
+            // bad input format
+            System.out.println("Enter right position (row col). Like 2 3: ");
+            // ask user to input again.
+            return inputPosition(scn,size);
+        }
+
+        try{
+            // split and parse row & col
+            String[] splitStr = inputStr.trim().split(" ");
+            int row = Integer.parseInt(splitStr[0]);
+            int col = Integer.parseInt(splitStr[1]);
+
+            if(row<1 || row>size || col<1 || col>size){
+                // too small or too large
+                System.out.println("you are not in a room.");
+                // ask the user to input again.
+                return inputPosition(scn,size);
+            }
+            position[0]=row;
+            position[1]=col;
+            return position;
+        }catch(Exception e){
+            System.out.println("Enter two int numbers.");
+            // got exception  while parse
+            // ask the user to input again.
+            return inputPosition(scn,size);
+        }
+    }
 }
