@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Collections;  
-
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Warehouse
@@ -29,6 +29,16 @@ public class Warehouse {
     private int size;
 
     /**
+     * trace_switch
+     *
+     * default is false
+     *
+     * @access private
+     */
+    private boolean trace_switch;
+
+
+    /**
      * Warehouse
      *
      * constructor
@@ -45,10 +55,16 @@ public class Warehouse {
         for(int i = 0; i < size * size; i++) {
             this.roomList.add(new Room());
         }
+
+        trace_switch = false;
     }
 
     public List<Room> getRoomList() {
         return roomList;
+    }
+
+    public void setTrace(boolean on_off) {
+        this.trace_switch  = on_off;
     }
 
     /**
@@ -63,6 +79,15 @@ public class Warehouse {
         // we can not install doors.
         if (this.size == 1) {
             return;
+        }
+
+        if (this.trace_switch) {
+            System.out.println("before install");
+            this.print();
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+            }
         }
 
         // loop and install each room
@@ -152,6 +177,18 @@ public class Warehouse {
 
             // remove the wall from wallList, cause it always have a door.
             wallList.remove(i);
+
+            // print trace log
+
+            if (this.trace_switch) {
+                System.out.println("after install one door in one room and one door in the neighbour room");
+                this.print();
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException e) {
+                }
+            }
+
         }
     }
 

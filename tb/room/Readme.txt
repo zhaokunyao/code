@@ -3,7 +3,8 @@
 
 ## linux without IDE
 输入make命令进行编译
-输入make run执行程序 
+输入make test执行测试任务(make test之前必须先make)
+输入make run执行程序 (make run之前必须先make)
 
 ## IDE
 build and run according to IDE you chose.
@@ -122,13 +123,13 @@ and then breaking those strings into (5) component parts
 
 # 测试重点
 
+--  Room初始化之后没有门
+--  Room设置一个door之后， door的总量是否正确(+1)， 确认目标wall上出现了door.
+--  Room设置多个door之后， door的总量是否正确(+n)， 确认目标wall上出现了door.
+--  Rood在某个已经有了door 的wall上面再次设置door,  door的总量是否正确 (+0), 确认目标wall上是否仍旧有door.
 --  warehouse中没有room, 无法设置door， 无法输出
 --  warehouse中只有一个room,  则无法设置door
 --  warehouse初始化之后，门的总数量为0
 --  随机设置完所有door之后， external wall上面不能有door， 且每个Room的door的数量在2-4之间。
 --  Warehouse设置一个door之后， door的总量是否正确(+2)，新增door的位置是否正确 。
---  Room初始化之后没有门
---  Room设置一个door之后， door的总量是否正确(+1)， 确认目标wall上出现了door.
---  Room设置多个door之后， door的总量是否正确(+n)， 确认目标wall上出现了door.
---  Rood在某个已经有了door 的wall上面再次设置door,  door的总量是否正确 (+0), 确认目标wall上是否仍旧有door.
 

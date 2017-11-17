@@ -148,9 +148,34 @@ public class Room {
     }
 
     /**
+     * wallsWithDoor
+     *
+     * return all the walls with a door of the room.
+     *
+     * @access public
+     * @return List<String>
+     */
+    public List<String> wallsWithDoor() {
+        List<String> wallList = new ArrayList<String>();
+        if (this.isnWallHadDoor()) {
+            wallList.add("north");
+        }
+        if (this.issWallHadDoor()) {
+            wallList.add("south");
+        }
+        if (this.iseWallHadDoor()) {
+            wallList.add("east");
+        }
+        if (this.iswWallHadDoor()) {
+            wallList.add("west");
+        }
+        return wallList;
+    }
+
+    /**
      * wallsWithoutDoor
      *
-     * return all the doors without a door of the room.
+     * return all the walls without a door of the room.
      *
      * @access public
      * @return List<String>
