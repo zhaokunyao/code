@@ -98,14 +98,37 @@ ewWall若是以字母D结尾，则表示东面墙有门
 如果当前room门的数量不足2， 则继续上面的流程，再设置另外一个门。
 
 ### 是否为external wall的判断方法：
+由上述roomList的数据结构可知，
+如果wall为'north'， 且index在 [0, size-1] 则为external wall
+如果wall为'south', 且index在[(size-1)*size,  (size-1)*size + size -1]，则为external wall
+如果wall为'west', 且index 可以被size整除，则为external wall
+如果wall为'east'， 且index被size除了之后，余数为 size-1， 则为external wall
 
 ### 根据wall与当前room的index计算相邻room index的方法：
+同样由上述roomList的数据结构可以推断出相邻的 room index,
+公式可以直接看代码。
 
 
 ### 输出warehouse的方法： 
+如ass8.pdf中所述，输出warehouse时，
+asking each room todeliver its string representation 
+and then breaking those strings into (5) component parts 
+并按行聚合，
+之后，按行输出这些component parts.
 
 ## graph
 接收用户输入，没啥好讲的。
 
 
 # 测试重点
+
+--  warehouse中没有room, 无法设置door， 无法输出
+--  warehouse中只有一个room,  则无法设置door
+--  warehouse初始化之后，门的总数量为0
+--  随机设置完所有door之后， external wall上面不能有door， 且每个Room的door的数量在2-4之间。
+--  Warehouse设置一个door之后， door的总量是否正确(+2)，新增door的位置是否正确 。
+--  Room初始化之后没有门
+--  Room设置一个door之后， door的总量是否正确(+1)， 确认目标wall上出现了door.
+--  Room设置多个door之后， door的总量是否正确(+n)， 确认目标wall上出现了door.
+--  Rood在某个已经有了door 的wall上面再次设置door,  door的总量是否正确 (+0), 确认目标wall上是否仍旧有door.
+
