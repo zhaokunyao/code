@@ -1,0 +1,78 @@
+####
+做为一名PHP RD，
+最先接触到的存储与查询系统基本上都是mysql（文件系统不算数）。
+如果你一上来搞的就是redis或mongodb， 那么恭喜你，你已经击败了全国99.9%的RD, 
+这是一件多么奇葩的事情。
+
+有了mysql之后，我们可以实现很多很多的业务，
+特别是在小公司里面，掌握了mysql之后，简直可以横着走了。
+随着公司规模的扩大，业务场景也越来越复杂，
+奇葩需求也越来越多， mysql似乎有些不够给力了。
+于是各种升级方案就出来了， 比如redis、mongodb、各种检索系统、推荐系统等等。
+
+本文将着重讲解一下检索系统。
+在开讲之前， 还需要先分析一下mysql的整个查询过程。
+
+####
+
+以下面的sql为例，innodb存储引擎：
+```
+SELECT * FROM tbl WHERE a='aaa' AND b > 10 AND c < 20 ORDER BY d DESC LIMIT 10
+```
+tbl表有一个自增主键id。
+熟练掌握加索引技能的RD， 都知道应该在字段a与b， 或者字段a与c上面建一个联合的索引。
+
+这个sql可以被分解为如下几个部分：
+WHERE 部分;
+ORDER BY 部分;
+LIMIT 部分;
+SELECT 部分;
+下面分别讲解。
+
+###
+WHERE 部分
+
+我们都知道，innodb的B+树索引的结构，如下：
+[图]
+不止索引是长这样子， 原始数据也是以主键为key的同样结构的树。
+在这里，我们把原始数据称为clustered index， 把索引树称为secondary index.
+clustered index只有一个，  而secondary index就会有多个，我们创建了多少个索引， 就会有多少个secondary index.
+
+在执行WHERE操作的时候， mysql的查询优化器会选择索引 (a,b)的树 或者(a,c)的树， 
+然后在树上召回符合条件的记录(只有主键字段)。
+假设mysql选择使用(a, b)的secondary index进行召回， 得到了一批id.
+
+### SELECT 部分
+
+经过上面WHERE语句，得到了一批id, 
+但它并没有完全满足我们的WHERE条件（未考虑c字段），
+innodb还需要回到clustered index上，去取出这批id对应的全部记录的全部字段(SELECT *)，并在c字段上做出过滤。
+
+###
+ORDER BY部分
+
+经过上面WHERE语句的过滤， 得到了一批结果集。
+之后，就需要在d字段上对结果集进行排序。
+具体的排序算法本文不再展开，可以参考文后的链接.
+
+###
+LIMIT 部分
+对排序后的结果进行拆分。
+
+
+####
+mysql无法满足的需求
+
+通过上一节对mysql查询过程的分析， 
+再结合一些业务场景，
+我们可以发现，在以下几点上，mysql存在不足之处：
+1) 文本匹配模式较弱，只能支持=和like操作。 
+2) 排序形式比较简单， 无法应对复杂的排序机制（比如同时按距离、静态分等多个字段排序）。
+3) 在索引的使用上， B+树有它的限制， 无法同时使用abc三个字段上的联合索引。
+4) 无法实现协同过滤等推荐策略。
+
+
+#####
+参考
+https://dev.mysql.com/doc/refman/5.7/en/innodb-index-types.html
+https://dev.mysql.com/doc/refman/5.7/en/order-by-optimization.html
