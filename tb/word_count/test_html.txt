@@ -1,0 +1,8 @@
+xxx
+<!-- This is a comment --> <a href="url">some words</a> <ul type="disc"><li>one</li> <li>two</li></ul>
+yyy
+<!-- This is a comment 
+with multi lines.
+--> <a href="url">some words</a> 
+<ul type="disc"><li>one</li> <li>two</li></ul>
+zzzzz
