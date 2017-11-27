@@ -5,8 +5,8 @@ import urllib2
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import cgi
 import json
-# word_count.py
-from word_count import WordCount
+# word_counter.py
+from word_counter import WordCounter
 
 class WordCountHTTPHandler(BaseHTTPRequestHandler): 
 
@@ -102,7 +102,7 @@ class WordCountHTTPHandler(BaseHTTPRequestHandler):
         # everything is ok, do the word count.
         self.send_response(200)
         self.end_headers()
-        o = WordCount(text)
+        o = WordCounter(text)
         arrData = o.go()
         html = self.myMakeHtml(arrData, url, text)
         self.wfile.write(html)
@@ -125,7 +125,7 @@ class WordCountHTTPHandler(BaseHTTPRequestHandler):
 
         # • the document that was processed, 
         # visibly showing any HTML markup that it may have contained;
-        html += cgi.escape(text, True)
+        html += cgi.escape(text, True).replace('\n','<br />\n')
 
         # • a statement of the total number of word occurrences in the document;
         wordText = "words"
@@ -161,7 +161,7 @@ class WordCountHTTPHandler(BaseHTTPRequestHandler):
             <th>Word</th>
             </tr>"""
 
-            for i in xrange(0, 10): 
+            for i in xrange(0, len(arrData['most'])): 
                 arrMost = arrData['most'][i]
                 arrLeast = arrData['least'][i]
                 html += """<tr>
@@ -191,6 +191,6 @@ class WordCountHTTPHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__': 
     # change the port as you need.
     port = 8889
-    http_server = HTTPServer(('0.0.0.0', int(port)), WordCountHTTPHandler)  
+    httpServer = HTTPServer(('0.0.0.0', int(port)), WordCountHTTPHandler)  
     print "server started at http://youip:%s/" % (port);
-    http_server.serve_forever()
+    httpServer.serve_forever()
