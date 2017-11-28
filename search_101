@@ -154,12 +154,16 @@ basic search
 第一级结构类似于clustered index， 不过并非用b+树实现， 而是简单的hash， key就是doc.id。
 value就是文档的各个字段。
 这个结构就称为正排表。 主要用于根据id查询其余字段，看起来没啥大用哈。
+
 第二级结构类似于secondary index， 一般来说需要建索引的字段都会有一个单独的secondary index,
-index的key是字段本身，value就是doc.id。
+secondary index称为倒排表。
+index的key是字段本身，value就是doc.id和score。
 但也有比较特殊的， 
 如果某字段上面需要切词， 则secondary index的key就是切词之后的token了.
-如果是数值形的字段需要建索引，好象也不太一样。具体忘记了。
-secondary index称为倒排表。
+如果是数值形的字段需要建索引，就更加神奇了,  可以参见文后的链接。
+
+对了， 在删除数据时，正排表就有用了， 首先根据id在正排中查到各种索引字段的值，
+然后去每个索引字段的倒排里面删除倒排记录。
 
 单字段或者单token的召回比较简单，直接在此字段/token的倒排表里查询就行了。
 所以倒排表至少是一个hash + linked list的结构。 
@@ -173,9 +177,11 @@ item_aaa_1里面有该文档的id,
 然后根据hash function，计算出'bbb'的入口， 并根据item_aaa_1的id字段，尝试在'bbb'的linked list中找到相同的id.
 如果能够找到， 则认为item_aaa_1是符合条件的记录， 如果找不到，则认为item_aaa_1不符合查询条件，
 然后从'bbb'的linked list中取出下一个item，并继续迭代此流程。
-在这个迭代的过程中， 如果发现已经取到了RECALL_DEPTH个doc(可自定义)， 则停止迭代。
+在这个迭代的过程中， 有各种停止策略，比如触发数停止、召回数停止、耗时停止。
 
-在创建倒排表的时候， 通常会把linked list搞成有序的， 谈到有序，你肯定想到了二分搜索，
+在创建倒排表的时候， 通常会把linked list搞成有序的(score降序，id升序， 
+这样可能是为了在停止时，丢弃的是score较差的doc)， 
+谈到有序，你肯定想到了二分搜索，
 不过在list上面没办法二分搜索的啦， 倒是有一个叫做skip list的结构，可以加速查找的过程 。
 [图]
 
@@ -201,9 +207,10 @@ advanced search
 并把推荐的结果集与bs的结果集进行merge。
 
 ###
-检索架构中存在的问题
+这套检索架构中存在的问题
 1) 如果as下面挂了成百上千个bs， 那么as merge的过程就会非常的吃力。
 2) 如果倒排中命中了太多的doc， 则称之为[倒排拉链过长」，性能直线下降。
+3) 每一个bs中只维护了一种类型的数据， 这就使得join之类的操作比较难以开发和实现。
 
 ####
 
@@ -232,3 +239,4 @@ advanced search
 https://dev.mysql.com/doc/refman/5.7/en/innodb-index-types.html
 https://dev.mysql.com/doc/refman/5.7/en/order-by-optimization.html
 https://zh.wikipedia.org/wiki/%E8%B7%B3%E8%B7%83%E5%88%97%E8%A1%A8
+http://www.cnblogs.com/zrhai/p/4143531.html
