@@ -1,17 +1,16 @@
 #coding=utf-8 
 import re
-#from HTMLParser import HTMLParser
-import html.parser as h  
+from HTMLParser import HTMLParser
 import operator
 from collections import Counter
 
 
 # https://docs.python.org/2/library/htmlparser.html
 # create a subclass and override the handler methods
-class MyHTMLParser(h.HTMLParser):
+class MyHTMLParser(HTMLParser):
 
     def __init__(self):
-        h.HTMLParser.__init__(self)
+        HTMLParser.__init__(self)
         self.arrData = []
 
     def handle_starttag(self, tag, attrs):
@@ -202,7 +201,7 @@ if __name__ == '__main__':
     # test cases.
     text = " A B B C C C D D D D E E E E E F F F F F F G G G G G G G "
     o = WordCounter(text)
-    print (o.go())
+    print o.go()
 
     text = """ A B B C C C D D D D E E E E E F F F F F F G G G G G G G 
     H H H H H H H H 
@@ -210,7 +209,7 @@ if __name__ == '__main__':
     J J J J J J J J J J
     K K K K K K K K K K K"""
     o = WordCounter(text)
-    print (o.go())
+    print o.go()
 
     text = "A"
     o = WordCounter(text)
