@@ -384,7 +384,12 @@ public class Warehouse {
                 System.out.println((i+1)+":"+room.getItemList().get(i).print());
             }
             System.out.print("Which item would you like?");
-            int itemIndex = Integer.parseInt(scn.nextLine());
+            int itemIndex = 0;
+            try {
+                itemIndex = Integer.parseInt(scn.nextLine());
+            } catch(NumberFormatException e){
+                itemIndex = -1;
+            }
             if(itemIndex>0 && itemIndex<=room.getItemList().size()){
                 Item item = room.getItemList().get(itemIndex-1);
                 if (! this.doPickupTransaction(item)) {
@@ -433,7 +438,12 @@ public class Warehouse {
                 System.out.println((i+1)+":"+this.hero.getItemList().get(i).print());
             }
             System.out.print("Which item would you like?");
-            int itemIndex = Integer.parseInt(scn.nextLine());
+            int itemIndex = 0;
+            try {
+                itemIndex = Integer.parseInt(scn.nextLine());
+            } catch(NumberFormatException e){
+                itemIndex = -1;
+            }
             if(itemIndex>0 && itemIndex<=this.hero.getItemList().size()){
                 Item item = this.hero.getItemList().get(itemIndex-1);
                 this.doDropTransaction(item);

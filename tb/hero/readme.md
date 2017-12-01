@@ -145,3 +145,5 @@ and then breaking those strings into (5) component parts
 --  Warehouse里执行drop事务(hero - item, room + item)
 --  item的set与get方法是否正确 
 --  hero的pickUp与drop方法是否正确 ， 在达到或者超出最大capacity的时候是否正确 
+--  人工测试： room里面没有item， 则无法pick
+--  人工测试： hero包里面没有item， 则无法drop
