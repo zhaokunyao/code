@@ -31,8 +31,12 @@ public class Graph {
         // create a warehouse as a square (n x n) array of rooms
         Warehouse wareHouse = new Warehouse(8);
 
-        // install 
-        wareHouse.install();
+        // install doors
+        // moved to the constructor
+        // wareHouse.install();
+
+        // print
+        wareHouse.print();
 
         // scatter items
         List<Item> itemList = makeItemList();

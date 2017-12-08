@@ -11,17 +11,19 @@ import java.util.concurrent.TimeUnit;
  * Warehouse
  *
  * warehouse as a square (n x n) array of rooms
+ * using a 2-d array
  *
- * @version 1.0
+ * @version 2.0
  */
 public class Warehouse {
     /**
      *  roomList
      *
      * the rooms in the Warehouse
+     * 2d array
      *
      */
-    private List<Room> roomList;
+    private List<List<Room>> roomList;
 
     /**
      * the height or width of the warehouse
@@ -50,14 +52,19 @@ public class Warehouse {
     /**
      * heroPos
      */
-    private int heroPos;
+    private int heroPosCol;
+    private int heroPosRow;
 
     public Hero getHero() {
         return hero;
     }
 
-    public int getHeroPos() {
-        return heroPos;
+    public int getHeroPosCol() {
+        return heroPosCol;
+    }
+
+    public int getHeroPosRow() {
+        return heroPosRow;
     }
 
     /**
@@ -71,17 +78,22 @@ public class Warehouse {
     public Warehouse(int size) {
         super();
         this.size = size;
-        this.roomList = new ArrayList<Room>(size*size);
+        this.roomList = new ArrayList<List<Room>>();
         // add size * size rooms. 
         // all room without door.
-        for(int i = 0; i < size * size; i++) {
-            this.roomList.add(new Room());
+        for(int i = 0; i < size; i++) {
+            List<Room> roomList = new ArrayList<Room>(size);
+            for (int j = 0; j < size; j++) {
+                roomList.add(new Room());
+            }
+            this.roomList.add(roomList);
         }
 
         this.traceSwitch = false;
+        this.installDoors();
     }
 
-    public List<Room> getRoomList() {
+    public List<List<Room>> getRoomList() {
         return roomList;
     }
 
@@ -90,19 +102,24 @@ public class Warehouse {
     }
 
     /**
-     * install
+     * installDoors
      *
      * randomly give each room some doors
      *
      * @access public
      */
-    public void install(){
+    public void installDoors(){
+        // 0x0
+        if (this.size == 0) {
+            return;
+        }
         // if it is a 1x1 warehouse,  all the walls are external wall,
         // we can not install doors.
         if (this.size == 1) {
             return;
         }
 
+        /**
         if (this.traceSwitch) {
             System.out.println("before install");
             this.print();
@@ -111,10 +128,13 @@ public class Warehouse {
             } catch (InterruptedException e) {
             }
         }
+        **/
 
         // loop and install each room
-        for(int i=0;i<this.roomList.size();i++){
-            this.installOneRoom(i);
+        for(int i=0;i<this.size;i++){
+            for (int j=0; j<this.size; j++) {
+                this.installOneRoom(i, j);
+            }
         }
     }
 
@@ -125,25 +145,25 @@ public class Warehouse {
      *
      * @access private
      * @param int
+     * @param int
      * @param string
      * @return bool
      */
-    private boolean isExternalWall(int index, String wall) {
-        // note: the index start from 0 , end with this.size*this.size-1
-        // north wall with room index [0, this.size-1]
-        if (index < this.size && wall == "north") {
+    private boolean isExternalWall(int col, int row, String wall) {
+        // north wall with room col 0 
+        if (col == 0 && wall == "north") {
             return true;
         }
-        // south wall with room index [this.size * (this.size-1), this.size * this.size-1]
-        if (index >= this.size * (this.size - 1) && wall == "south") {
+        // south wall with room col this.size-1
+        if (col == this.size-1 && wall == "south") {
             return true;
         }
-        // west wall with room index: 0, this.size, this.size*2,  this.size*3 etc
-        if (index % this.size == 0 && wall == "west") {
+        // west wall with room row 0
+        if (row == 0 && wall == "west") {
             return true;
         }
-        // east wall with room index this.size-1, this.size*2-1, this.size*3-1 etc
-        if (index % this.size == this.size - 1 && wall == "east") {
+        // east wall with room row this.size-1
+        if (row == this.size - 1 && wall == "east") {
             return true;
         }
         // not external
@@ -158,10 +178,12 @@ public class Warehouse {
      * @access private
      * @param int 
      */
-    private void installOneRoom(int index) {
-        // System.out.print("install " + index + "\n");
+    private void installOneRoom(int col, int row) {
+
+        // System.out.println("installing " + col + ":" +  row);
+
         // get the room
-        Room room = this.roomList.get(index);
+        Room room = this.roomList.get(col).get(row);
 
         // get all the walls without door of the room
         List<String> wallList = room.wallsWithoutDoor();
@@ -169,8 +191,8 @@ public class Warehouse {
         // remove external walls from wallList
         for (int i = wallList.size() - 1; i >= 0; i--) {
             String wall = wallList.get(i);
-            if (this.isExternalWall(index, wall)) {
-                // System.out.print("remove " + wall + "\n");
+            if (this.isExternalWall(col, row, wall)) {
+                // System.out.println("remove " + wall + " : " + col + ":" + row);
                 wallList.remove(i);
             }
         }
@@ -189,10 +211,20 @@ public class Warehouse {
             room.installDoor(wall);
 
             // get neighbour's wall according to room's wall.
-            String neighbourWall = this.getNeightbourWall(wall);
+            String neighbourWall = "";
+            try {
+                neighbourWall = this.getNeightbourWall(wall);
+            } catch (Exception e) {
+                continue;
+            }
 
             // get neightbour room
-            Room neighbourRoom = this.getNeightbourRoom(index, wall);
+            Room neighbourRoom = new Room();
+            try {
+                neighbourRoom = this.getNeightbourRoom(col, row, wall);
+            } catch (Exception e) {
+                continue;
+            }
 
             // neighbourRoom install door.
             neighbourRoom.installDoor(neighbourWall);
@@ -202,6 +234,7 @@ public class Warehouse {
 
             // print trace log
 
+            /**
             if (this.traceSwitch) {
                 System.out.println("after install one door in one room and one door in the neighbour room");
                 this.print();
@@ -210,6 +243,7 @@ public class Warehouse {
                 } catch (InterruptedException e) {
                 }
             }
+            **/
 
         }
     }
@@ -223,7 +257,7 @@ public class Warehouse {
      * @param string
      * @return string
      */
-    private String getNeightbourWall(String wall) {
+    private String getNeightbourWall(String wall) throws Exception{
         if (wall == "north") {
             return  "south";
         }
@@ -233,7 +267,10 @@ public class Warehouse {
         if (wall == "south") {
             return  "north";
         }
-        return  "east";
+        if (wall == "west") {
+            return  "east";
+        }
+        throw new Exception("unknown wall");
     }
 
     /**
@@ -243,24 +280,28 @@ public class Warehouse {
      *
      * @access private
      * @param int
+     * @param int
      * @param Room
      */
-    private Room getNeightbourRoom(int index, String wall) {
-        int neighbourIndex;
+    private Room getNeightbourRoom(int col, int row, String wall) throws Exception{
+        int neighbourCol = col;
+        int neighbourRow = row;
         if (wall == "north") {
             // the line above 
-            neighbourIndex = index - this.size;
+            neighbourCol = col - 1;
         } else if (wall == "east") {
             // right
-            neighbourIndex = index + 1;
+            neighbourRow = row + 1;
         } else if (wall == "south") {
             // the line below
-            neighbourIndex = index + this.size;
-        } else {
+            neighbourCol = col + 1;
+        } else if (wall == "west") {
             // left
-            neighbourIndex = index - 1;
+            neighbourRow = row - 1;
+        } else {
+            throw new Exception("unknown wall");
         }
-        Room room = this.roomList.get(neighbourIndex);
+        Room room = this.roomList.get(neighbourCol).get(neighbourRow);
         return room;
     }
 
@@ -272,27 +313,24 @@ public class Warehouse {
      * @access public
      */
     public void print(){
-        // loop each row.
+        // loop each line.
         for(int i = 0; i < this.size; i++){
             // we have five component parts of each room.
-            List<String> outputNwall = new ArrayList<String>();
-            List<String> outputSide = new ArrayList<String>();
-            List<String> outputEwwall = new ArrayList<String>();
-            List<String> outputSide2 = new ArrayList<String>();
-            List<String> outputSwall = new ArrayList<String>();
+            List<String> outputNwall    = new ArrayList<String>();
+            List<String> outputSide     = new ArrayList<String>();
+            List<String> outputEwwall   = new ArrayList<String>();
+            List<String> outputSide2    = new ArrayList<String>();
+            List<String> outputSwall    = new ArrayList<String>();
 
-            // loop each room in the row
+            // loop each room in the line 
             for (int j = 0; j < this.size; j++) {
-                // calculate room's index
-                int index = i * this.size + j;
-
                 // get room
-                Room room = this.roomList.get(index);
+                Room room = this.roomList.get(i).get(j);
                 // string representation
                 String strRoom = room.toString();
                 // breaking string into component parts
                 List<String> tokens = Arrays.asList(strRoom.split("\n"));
-                // save earch parts
+                // save each parts
                 outputNwall.add(tokens.get(0));
                 outputSide.add(tokens.get(1));
                 outputEwwall.add(tokens.get(2));
@@ -339,14 +377,15 @@ public class Warehouse {
         this.hero = hero;
         Random r = new Random();
         // make hero pos
-        this.heroPos = r.nextInt(size*size);
+        this.heroPosCol = r.nextInt(this.size);
+        this.heroPosRow = r.nextInt(this.size);
 
         // get the room from warehouse
-        Room room = this.getRoomList().get(heroPos);
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
 
         // describe that room to the user.
-        System.out.println("You are in room ("+(this.heroPos / this.size + 1)
-            + "," + (this.heroPos % this.size + 1)+")");
+        System.out.println("You are in room ("+(this.heroPosCol + 1)
+            + "," + (this.heroPosRow + 1)+")");
         room.print();
     }
 
@@ -377,7 +416,7 @@ public class Warehouse {
      * @param Scanner
      */
     private void handleCmdP(Scanner scn) {
-        Room room = this.getRoomList().get(heroPos);
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
         if(room.getItemList()!=null && room.getItemList().size()>0){
             System.out.println("OK. Here are the items you can pick up:");
             for(int i=0;i<room.getItemList().size();i++){
@@ -414,7 +453,7 @@ public class Warehouse {
      * @return boolean
      */
     public boolean doPickupTransaction(Item item) {
-        Room room = this.getRoomList().get(heroPos);
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
         if (this.hero.pickUp(item)) {
             room.removeItem(item);
             return true;
@@ -431,7 +470,7 @@ public class Warehouse {
      * @param Scanner
      */
     private void handleCmdD(Scanner scn) {
-        Room room = this.getRoomList().get(heroPos);
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
         if(this.hero.getItemList()!=null && this.hero.getItemList().size()>0){
             System.out.println("OK. Here are the items you can drop:");
             for(int i=0;i<this.hero.getItemList().size();i++){
@@ -465,7 +504,7 @@ public class Warehouse {
      */
     public boolean doDropTransaction(Item item) {
         this.hero.drop(item);
-        Room room = this.getRoomList().get(heroPos);
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
         room.addItem(item);
         return true;
     }
@@ -499,39 +538,41 @@ public class Warehouse {
      * @param direction
      */
     public void moveHero(String direction){
-        int newRoomIndex = this.heroPos;
-        Room room = this.roomList.get(newRoomIndex);
+        int newRoomCol = this.heroPosCol;
+        int newRoomRow = this.heroPosRow;
+        Room room = this.roomList.get(heroPosCol).get(heroPosRow);
         if(direction.equals("n")){
             //go north
             if(room.isnWallHadDoor()){
-                newRoomIndex = this.heroPos-this.size;
+                newRoomCol  = heroPosCol - 1;
             }
         }
         if(direction.equals("e")){
             //go east
             if(room.iseWallHadDoor()){
-                newRoomIndex = this.heroPos+1;
+                newRoomRow = heroPosRow + 1;
             }
         }
         if(direction.equals("w")){
             //go west
             if(room.iswWallHadDoor()){
-                newRoomIndex = this.heroPos-1;
+                newRoomRow = heroPosRow - 1;
             }
         }
         if(direction.equals("s")){
             //go south
             if(room.issWallHadDoor()){
-                newRoomIndex = this.heroPos+this.size;
+                newRoomCol  = heroPosCol + 1;
             }
         }
 
-        if(newRoomIndex != this.heroPos){
-            this.heroPos = newRoomIndex;
+        if(newRoomCol != heroPosCol || newRoomRow != heroPosRow) {
+            heroPosCol = newRoomCol;
+            heroPosRow = newRoomRow;
             //move success
-            room=this.getRoomList().get(newRoomIndex);
-            System.out.println("You are in room ("+(this.heroPos / this.size + 1)
-                + "," + (this.heroPos % this.size + 1)+")");
+            room=this.roomList.get(heroPosCol).get(heroPosRow);
+            System.out.println("You are in room ("+(this.heroPosCol + 1)
+                + "," + (this.heroPosRow + 1)+")");
             room.print();
         }else{
             System.out.println("You can't go that way.");
@@ -550,8 +591,9 @@ public class Warehouse {
         //random set items to room.
         Random r = new Random();
         for(Item item : itemList){
-            int itemToRoomIndex = r.nextInt(this.size * this.size);
-            this.getRoomList().get(itemToRoomIndex).addItem(item);
+            int itemToRoomCol = r.nextInt(this.size);
+            int itemToRoomRow = r.nextInt(this.size);
+            this.roomList.get(itemToRoomCol).get(itemToRoomRow).addItem(item);
         }
     }
 

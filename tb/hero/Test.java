@@ -90,7 +90,7 @@ public class Test {
     }
     private static void testWarehouseZeroRoom() {
         Warehouse w = new Warehouse(0);
-        List<Room> roomList = new ArrayList<Room>();
+        List<List<Room>> roomList = new ArrayList<List<Room>>();
         roomList = w.getRoomList();
         assert roomList.size() == 0;
         System.out.println("should print nothing.");
@@ -98,28 +98,12 @@ public class Test {
     }
     private static void testWarehouseOneRoom() {
         Warehouse w = new Warehouse(1);
-        List<Room> roomList = new ArrayList<Room>();
+        List<List<Room>> roomList = new ArrayList<List<Room>>();
         roomList = w.getRoomList();
         assert roomList.size() == 1;
-        w.install();
+        assert roomList.get(0).size() == 1;
         System.out.println("should print an room without door.");
         w.print();
-    }
-
-    private static void testWarehouseInit() {
-        // loop
-        for (int size = 2; size < 100; size ++) {
-            // just init. do not install
-            Warehouse w = new Warehouse(size);
-            List<Room> roomList = new ArrayList<Room>();
-            roomList = w.getRoomList();
-            assert roomList.size() == size * size;
-            int doorCount = 0;
-            for (Room room : roomList) {
-                doorCount += room.getDoorCount();
-            }
-            assert doorCount == 0;
-        }
     }
 
     private static void testWarehouseInstall() {
@@ -128,34 +112,33 @@ public class Test {
             Warehouse w = new Warehouse(size);
             
             // open trace.
-            w.setTrace(true);
-
-            // install
-            w.install();
+            // w.setTrace(true);
 
             // get room list
-            List<Room> roomList = new ArrayList<Room>();
+            List<List<Room>> roomList = new ArrayList<List<Room>>();
             roomList = w.getRoomList();
             for (int i = 0; i < roomList.size(); i++) {
-                Room room = roomList.get(i);
-                int doorCount = room.getDoorCount();
-                // door count in each room:  >=2 and <= 4 
-                assert(doorCount >=2 && doorCount <= 4);
+                for (int j = 0; j < roomList.size(); j++) {
+                    Room room = roomList.get(i).get(j);
+                    int doorCount = room.getDoorCount();
+                    // door count in each room:  >=2 and <= 4 
+                    assert(doorCount >=2 && doorCount <= 4);
 
-                // assert external walls do not have doors.
-                List<String> wallList = new ArrayList<String>();
-                wallList = room.wallsWithoutDoor();
-                if (i < size) {
-                    assert wallList.contains("north");
-                }
-                if (i >= size * (size - 1)) {
-                    assert wallList.contains("south");
-                }
-                if (i % size == 0) {
-                    assert wallList.contains("west");
-                }
-                if (i % size == size - 1) {
-                    assert wallList.contains("east");
+                    // assert external walls do not have doors.
+                    List<String> wallList = new ArrayList<String>();
+                    wallList = room.wallsWithoutDoor();
+                    if (i == 0) {
+                        assert wallList.contains("north");
+                    }
+                    if (i  == roomList.size() - 1) {
+                        assert wallList.contains("south");
+                    }
+                    if (j == 0) {
+                        assert wallList.contains("west");
+                    }
+                    if (j == roomList.size() - 1) {
+                        assert wallList.contains("east");
+                    }
                 }
             }
         }
@@ -360,77 +343,95 @@ public class Test {
         Warehouse warehouse = new Warehouse(8);
         Hero hero = new Hero();
         warehouse.installHero(hero);
-        int heroPos = warehouse.getHeroPos();
-        assert(heroPos >= 0 && heroPos < 8*8);
+        int heroPosCol = warehouse.getHeroPosCol();
+        int heroPosRow = warehouse.getHeroPosRow();
+        assert(heroPosCol >= 0 && heroPosCol < 8);
+        assert(heroPosRow >= 0 && heroPosRow < 8);
     }
 
     private static void testWarehouseMoveHero() {
         Warehouse warehouse = new Warehouse(8);
-        warehouse.install();
         Hero hero = new Hero();
         warehouse.installHero(hero);
 
-        int oldHeroPos = warehouse.getHeroPos();
-        Room room = warehouse.getRoomList().get(oldHeroPos);
+        int oldHeroPosCol = warehouse.getHeroPosCol();
+        int oldHeroPosRow = warehouse.getHeroPosRow();
+        Room room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
         for (int i = 0; i < 10; i++) {
             if (!room.isnWallHadDoor()) {
                 warehouse.moveHero("n");
                 // move failed
-                assert oldHeroPos == warehouse.getHeroPos();
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
             }
             if (!room.iseWallHadDoor()) {
                 warehouse.moveHero("e");
                 // move failed
-                assert oldHeroPos == warehouse.getHeroPos();
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
             }
             if (!room.issWallHadDoor()) {
                 warehouse.moveHero("s");
                 // move failed
-                assert oldHeroPos == warehouse.getHeroPos();
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
             }
             if (!room.iswWallHadDoor()) {
                 warehouse.moveHero("w");
                 // move failed
-                assert oldHeroPos == warehouse.getHeroPos();
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
             }
             if (room.isnWallHadDoor()) {
                 warehouse.moveHero("n");
                 // move success
-                assert oldHeroPos == warehouse.getHeroPos() + 8;
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol() + 1;
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
                 continue;
             }
             if (room.iseWallHadDoor()) {
                 warehouse.moveHero("e");
                 // move success
-                assert oldHeroPos == warehouse.getHeroPos() - 1;
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow() - 1;
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
                 continue;
             }
             if (room.issWallHadDoor()) {
                 warehouse.moveHero("s");
                 // move success
-                assert oldHeroPos == warehouse.getHeroPos() - 8;
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol() - 1;
+                assert oldHeroPosRow == warehouse.getHeroPosRow();
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
                 continue;
             }
             if (room.iswWallHadDoor()) {
                 warehouse.moveHero("w");
                 // move success
-                assert oldHeroPos == warehouse.getHeroPos() + 1;
-                oldHeroPos = warehouse.getHeroPos();
-                room = warehouse.getRoomList().get(oldHeroPos);
+                assert oldHeroPosCol == warehouse.getHeroPosCol();
+                assert oldHeroPosRow == warehouse.getHeroPosRow() + 1;
+                oldHeroPosCol = warehouse.getHeroPosCol();
+                oldHeroPosRow = warehouse.getHeroPosRow();
+                room = warehouse.getRoomList().get(oldHeroPosCol).get(oldHeroPosRow);
                 continue;
             }
         }
@@ -450,8 +451,9 @@ public class Test {
         item3.setSize(3);
         itemList.add(item3);
         warehouse.installHero(hero);
-        int heroPos = warehouse.getHeroPos();
-        Room room = warehouse.getRoomList().get(heroPos);
+        int heroPosCol = warehouse.getHeroPosCol();
+        int heroPosRow = warehouse.getHeroPosRow();
+        Room room = warehouse.getRoomList().get(heroPosCol).get(heroPosRow);
         hero.pickUp(item1);
         hero.pickUp(item2);
         hero.pickUp(item3);
@@ -484,8 +486,9 @@ public class Test {
         item3.setSize(30);
         itemList.add(item3);
         warehouse.installHero(hero);
-        int heroPos = warehouse.getHeroPos();
-        Room room = warehouse.getRoomList().get(heroPos);
+        int heroPosCol = warehouse.getHeroPosCol();
+        int heroPosRow = warehouse.getHeroPosRow();
+        Room room = warehouse.getRoomList().get(heroPosCol).get(heroPosRow);
         room.addItem(item1);
         room.addItem(item2);
         room.addItem(item3);
@@ -521,13 +524,15 @@ public class Test {
         itemList.add(item3);
         warehouse.installItems(itemList);
 
-        List<Room> roomList = warehouse.getRoomList();
+        List<List<Room>> roomList = warehouse.getRoomList();
         int size = 0;
-        for (Room room : roomList) {
-            List<Item> roomItemList = room.getItemList();
-            for (Item it : roomItemList) {
-                itemList2.add(it);
-                size += it.getSize();
+        for (List<Room> roomList2 : roomList) {
+            for (Room room : roomList2) {
+                List<Item> roomItemList = room.getItemList();
+                for (Item it : roomItemList) {
+                    itemList2.add(it);
+                    size += it.getSize();
+                }
             }
         }
         assert itemList2.size() == 3;
@@ -549,7 +554,6 @@ public class Test {
         // test warehouse
         testWarehouseZeroRoom();
         testWarehouseOneRoom();
-        testWarehouseInit();
         testWarehouseInstallItems();
         testWarehouseInstallHero();
         testWarehouseMoveHero();

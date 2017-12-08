@@ -54,28 +54,6 @@ public class Room {
     }
 
     /**
-     * getter and setter
-     */
-    private String getnWall() {
-        return nWall;
-    }
-    private void setnWall(String nWall) {
-        this.nWall = nWall;
-    }
-    private String getsWall() {
-        return sWall;
-    }
-    private void setsWall(String sWall) {
-        this.sWall = sWall;
-    }
-    private String getEwWall() {
-        return ewWall;
-    }
-    private void setEwWall(String ewWall) {
-        this.ewWall = ewWall;
-    }
-
-    /**
      * iseWallHadDoor
      *
      * if east wall have door.
@@ -231,23 +209,23 @@ public class Room {
     public void installDoor(String wall) {
         // System.out.println("room install " + wall);
         if (wall == "north") {
-            String s = this.getnWall().replace("-----", "--D--");
-            this.setnWall(s);
+            String s = this.nWall.replace("-----", "--D--");
+            this.nWall = s;
             return;
         }
         if (wall == "south") {
-            String s = this.getsWall().replace("-----", "--D--");
-            this.setsWall(s);
+            String s = this.sWall.replace("-----", "--D--");
+            this.sWall = s;
             return;
         }
         if (wall == "east") {
-            String s = this.getEwWall().replace("   |", "   D");
-            this.setEwWall(s);
+            String s = this.ewWall.replace("   |", "   D");
+            this.ewWall = s;
             return;
         }
         if (wall == "west") {
-            String s = this.getEwWall().replace("|   ", "D   ");
-            this.setEwWall(s);
+            String s = this.ewWall.replace("|   ", "D   ");
+            this.ewWall = s;
             return;
         }
     }
