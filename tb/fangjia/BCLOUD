@@ -1,1 +1,0 @@
-BUILD_SUBMITTER -x -m baidu/personal-code/fangjia -c "cd baidu/personal-code/fangjia && mkdir output &&cp BCLOUD ./output/" -u ./
