@@ -8,3 +8,9 @@ while (std::getline(infile, line)) {
 }
 infile.close();
 </pre>
+
+<pre>
+std::ifstream t(json_file);
+std::string str_json((std::istreambuf_iterator<char>(t)),
+    std::istreambuf_iterator<char>());
+</pre>

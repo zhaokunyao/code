@@ -1,0 +1,10 @@
+<pre>
+#include <exception>  
+std::string myreplace(std::string &s, const std::string &toReplace, 
+    const std::string &replaceWith) { 
+    return(s.replace(s.find(toReplace), toReplace.length(), replaceWith)); 
+}
+try  {
+catch (std::exception e)  {
+}
+</pre>
