@@ -1,0 +1,11 @@
+<pre>
+std::string trim(std::string s, std::string spliter) {
+if (s.empty()) {
+return s;
+}
+
+s.erase(0, s.find_first_not_of(spliter));
+s.erase(s.find_last_not_of(spliter) + 1);
+return s;
+}
+</pre>
