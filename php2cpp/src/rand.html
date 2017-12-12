@@ -1,0 +1,10 @@
+<pre>
+#include <cstdlib>
+#include <ctime>        // std::time
+
+std::srand ( unsigned ( std::time(0) ) );
+
+int i = 1000;
+// [0, 1000)
+return std::rand()%i;
+</pre>

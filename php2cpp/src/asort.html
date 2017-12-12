@@ -1,0 +1,12 @@
+<pre>
+std::map<std::string, int> map_city_count = {};
+// copy to vector and sort it.
+std::vector<std::pair<std::string, int> > vect(map_city_count.begin(), 
+    map_city_count.end());
+std::sort(vect.begin(), vect.end(), 
+    [] (std::pair<std::string, int> p1, std::pair<std::string, int>p2) {
+        // desc
+        return p1.second > p2.second;
+});
+
+</pre>

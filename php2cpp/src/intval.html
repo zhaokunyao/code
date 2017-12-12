@@ -5,5 +5,49 @@ uint64_t userid = std::strtoull("123456", &end, 10);
 </pre>
 
 <pre>
+// will throw an exception on error
 int i = std::stoi(s);
+
+// std::atoi()  returns zero on error.
+int count = std::atoi(s.c_str());
+
+</pre>
+
+<pre>
+const char* str = "123";
+int i;
+
+if(sscanf(str, "%d", &i)  == EOF )
+{
+   /* error */
+}
+
+</pre>
+
+<pre>
+int str2int (const string &str) {
+  stringstream ss(str);
+  int num;
+  if((ss >> num).fail())
+  { 
+      //ERROR 
+  }
+  return num;
+}
+
+</pre>
+<pre>
+#include <boost/lexical_cast.hpp>
+#include <string>
+
+try
+{
+    std::string str = "123";
+    int number = boost::lexical_cast< int >( str );
+}
+catch( const boost::bad_lexical_cast & )
+{
+    // Error
+}
+
 </pre>

@@ -7,3 +7,11 @@
             tokens.push_back(token);
         }
 </pre>
+
+<pre>
+#include <boost/algorithm/string.hpp>
+std::string str_city;
+std::vector<std::string> terms;
+boost::split(terms, str_city, boost::is_any_of(","));
+
+</pre>

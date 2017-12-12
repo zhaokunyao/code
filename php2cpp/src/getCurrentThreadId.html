@@ -1,0 +1,16 @@
+<pre>
+class My extends Thread {
+    public function run() {
+        printf("%s is Thread #%lu\n", __CLASS__, Thread::getCurrentThreadId());
+    }
+}
+$my = new My();
+$my->start();
+
+</pre>
+
+<pre>
+        std::stringstream tid;
+        tid << std::this_thread::get_id();
+        std::string out_file = "./data/map_bid/out_" + tid.str();
+</pre>
